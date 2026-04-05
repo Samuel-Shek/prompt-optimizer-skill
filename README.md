@@ -2,6 +2,8 @@
 
 一个单用途的提示词优化 Skill / Agent Prompt 包。
 
+English version: [README.en.md](README.en.md)
+
 它只做一件事：把用户的原始需求、粗糙提示词、system prompt 或 agent 指令，改写成可直接复制给主流大模型使用的终版提示词。
 
 ## 它适合做什么
@@ -52,8 +54,10 @@
 prompt-optimizer/
 ├── AGENTS.md
 ├── CLAUDE.md
+├── LICENSE
 ├── SKILL.md
 ├── README.md
+├── README.en.md
 ├── docs/
 │   └── platforms.zh-CN.md
 ├── agents/
