@@ -33,12 +33,18 @@
 
 ## 平台入口
 
-- `SKILL.md`：Skill 的正式定义
-- `AGENTS.md`：给读取 `AGENTS.md` 的 Agent 系统
-- `CLAUDE.md`：给读取 `CLAUDE.md` 的工作区系统
+- `SKILL.md`：唯一权威源文件，也是推荐编辑入口
+- `AGENTS.md`：`SKILL.md` 的别名，给读取 `AGENTS.md` 的 Agent 系统
+- `CLAUDE.md`：`SKILL.md` 的别名，给读取 `CLAUDE.md` 的工作区系统
 - `agents/openai.yaml`：界面元数据
 - `references/model-adaptation.md`：不同模型的适配参考
 - `docs/platforms.zh-CN.md`：各平台接入说明
+
+## 维护规则
+
+- 以后只改 `SKILL.md`
+- `AGENTS.md` 和 `CLAUDE.md` 不单独维护
+- 克隆仓库到本地后，三个入口会自动保持一致
 
 ## 目录结构
 

@@ -4,10 +4,20 @@
 
 它把同一套“提示词优化器”能力打包成多个常见入口文件，方便不同平台直接读取。
 
+## 单一源规则
+
+`SKILL.md` 是唯一权威源文件。
+
+- `AGENTS.md` 是指向 `SKILL.md` 的别名
+- `CLAUDE.md` 是指向 `SKILL.md` 的别名
+- 以后只改 `SKILL.md`
+
+如果某个平台不能正确读取符号链接，直接读取 `SKILL.md` 即可。
+
 ## 选哪个文件
 
-- Claude Code / 读取 `CLAUDE.md` 的系统：用 `CLAUDE.md`
-- OpenClaw / Codex / 读取 `AGENTS.md` 的系统：用 `AGENTS.md`
+- Claude Code / 读取 `CLAUDE.md` 的系统：优先用 `CLAUDE.md`，不能识别别名时直接用 `SKILL.md`
+- OpenClaw / Codex / 读取 `AGENTS.md` 的系统：优先用 `AGENTS.md`，不能识别别名时直接用 `SKILL.md`
 - Skills / Skill Marketplace / 本地技能目录：用 `SKILL.md`
 - 其他没有固定 Skill 格式的平台：直接把 `SKILL.md` 或 `AGENTS.md` 内容作为长期系统指令使用
 
