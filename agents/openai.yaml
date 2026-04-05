@@ -1,0 +1,4 @@
+interface:
+  display_name: "提示词优化器"
+  short_description: "把原始需求、粗糙 prompt 和 system 规则改写成终版提示词"
+  default_prompt: "Use $prompt-optimizer to rewrite this rough request into a polished final prompt."
