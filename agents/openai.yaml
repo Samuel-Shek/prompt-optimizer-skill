@@ -1,4 +1,4 @@
 interface:
   display_name: "提示词优化器"
-  short_description: "把原始需求、粗糙 prompt 和 system 规则改写成终版提示词"
-  default_prompt: "Use $prompt-optimizer to rewrite this rough request into a polished final prompt."
+  short_description: "直接说“优化提示词”或“帮我优化”，再贴原始内容"
+  default_prompt: "优化提示词：\n\n{{在这里粘贴你的原始需求、已有 prompt、system prompt 或 agent 指令}}"

@@ -14,8 +14,14 @@ bash scripts/install-local.sh all
 
 ## Quick use
 
-- Claude / Codex: install first, then call `$prompt-optimizer`
-- OpenClaw: attach it to the target agent workspace, then send the raw request directly
+- Claude / Codex: install first, call `$prompt-optimizer`, then just say:
+  - `optimize prompt`
+  - `help me optimize`
+  - and paste the raw request / prompt / system prompt / agent instruction directly
+- OpenClaw: attach it to the target agent workspace, then do the same:
+  - `optimize prompt`
+  - `help me optimize`
+  - followed by the raw content
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body
 
 ## Example
@@ -23,19 +29,43 @@ bash scripts/install-local.sh all
 Input:
 
 ```text
-Turn this request into a Claude-ready final prompt: I want Claude to help me draft a product plan, focusing on target users, core features, launch priority, and risks.
+optimize prompt:
+
+I want Claude to analyze the work I’m currently doing and figure out which SOPs are worth turning into reusable Skills.
+
+What I need is roughly:
+- identify recurring workflows across my projects and day-to-day tasks
+- separate reusable SOPs from one-off tasks
+- rank the candidates by reuse potential, clarity of boundaries, and publishability
+- suggest which ones are worth packaging for GitHub first
+- explain why some items should not become Skills
+- keep the output structured and decision-oriented, not generic
 ```
 
 Expected output style:
 
 ```text
-Please turn the following rough request into a high-quality final prompt for Claude.
+<instructions>
+Analyze the work I provide and identify which SOPs are strong candidates for reusable Skills.
+</instructions>
 
-Requirements:
-- preserve the original intent
-- rewrite vague or conversational wording into clear, executable instructions
-- add missing task goal, context, output format, and constraints when necessary
-- use Claude-friendly structured sections when the task is complex
+<context>
+I am working across multiple recurring tasks and projects. Some of them may be stable, repeatable, and bounded enough to become Skills, while others may still be too ad hoc.
+</context>
+
+<output_format>
+Return:
+1. candidate Skills
+2. priority ranking
+3. items that should not become Skills
+4. GitHub packaging suggestions
+</output_format>
+
+<constraints>
+- base judgments on the actual work described
+- explain ranking criteria
+- distinguish reusable SOPs from one-off work
+</constraints>
 ```
 
 ## Privacy
