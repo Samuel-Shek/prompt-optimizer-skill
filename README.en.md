@@ -18,6 +18,32 @@ bash scripts/install-local.sh all
 - OpenClaw: attach it to the target agent workspace, then send the raw request directly
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body
 
+## Example
+
+Input:
+
+```text
+Turn this request into a Claude-ready final prompt: I want Claude to help me draft a product plan, focusing on target users, core features, launch priority, and risks.
+```
+
+Expected output style:
+
+```text
+Please turn the following rough request into a high-quality final prompt for Claude.
+
+Requirements:
+- preserve the original intent
+- rewrite vague or conversational wording into clear, executable instructions
+- add missing task goal, context, output format, and constraints when necessary
+- use Claude-friendly structured sections when the task is complex
+```
+
+## Privacy
+
+- This repository does not include local chat logs, cache folders, credentials, or machine screenshots
+- Real desktop screenshots and GIFs are intentionally omitted to avoid exposing local environment details
+- Only shareable skill files, scripts, and documentation are published
+
 ## Good for
 
 - Improving an existing prompt
