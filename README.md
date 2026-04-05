@@ -33,11 +33,27 @@ English version: [README.en.md](README.en.md)
 - 想把 agent 指令写得更稳的人
 - 想把一段模糊需求改写成可执行 AI 指令的人
 
+## 快速接入
+
+```bash
+bash scripts/install-local.sh claude
+bash scripts/install-local.sh openclaw
+bash scripts/install-local.sh all
+```
+
+## 快速调用
+
+- Claude / Codex：安装后直接用 `$prompt-optimizer`
+- OpenClaw：把它接进对应 Agent 工作区后，直接把原始需求发给这个角色
+- 其他平台：运行 `bash scripts/print-prompt.sh`，拿到可直接粘贴的纯正文版本
+
 ## 平台入口
 
 - `SKILL.md`：唯一权威源文件，也是推荐编辑入口
 - `AGENTS.md`：`SKILL.md` 的别名，给读取 `AGENTS.md` 的 Agent 系统
 - `CLAUDE.md`：`SKILL.md` 的别名，给读取 `CLAUDE.md` 的工作区系统
+- `scripts/install-local.sh`：一键安装到 Claude / Codex / OpenClaw
+- `scripts/print-prompt.sh`：导出可直接粘贴给其他 AI 平台的正文版本
 - `agents/openai.yaml`：界面元数据
 - `references/model-adaptation.md`：不同模型的适配参考
 - `docs/platforms.zh-CN.md`：各平台接入说明
@@ -58,6 +74,9 @@ prompt-optimizer/
 ├── SKILL.md
 ├── README.md
 ├── README.en.md
+├── scripts/
+│   ├── install-local.sh
+│   └── print-prompt.sh
 ├── docs/
 │   └── platforms.zh-CN.md
 ├── agents/

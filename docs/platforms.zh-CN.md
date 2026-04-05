@@ -36,16 +36,42 @@
 
 ### Claude Code
 
-把 `CLAUDE.md` 放进对应工作区，或作为该角色的长期说明文件加载。
+一条命令：
+
+```bash
+bash scripts/install-local.sh claude
+```
+
+之后直接调用 `$prompt-optimizer`。
 
 ### OpenClaw
 
-把 `AGENTS.md` 放进 Agent 工作区，或把内容接到对应 Agent 的角色说明中。
+一条命令：
+
+```bash
+bash scripts/install-local.sh openclaw
+```
+
+默认会把接入点放到 `~/.openclaw/workspace-prompt-optimizer`。
+
+之后把这个工作区接到对应 Agent，直接发送原始需求即可。
 
 ### Codex / 其他 Agent 系统
+
+一条命令：
+
+```bash
+bash scripts/install-local.sh codex
+```
 
 优先使用 `AGENTS.md`；如果平台本身支持 Skill 目录，也可以直接使用 `SKILL.md`。
 
 ### ChatGPT / Gemini / DeepSeek / 其他通用平台
 
-如果平台没有原生 Skill 机制，就把 `SKILL.md` 的正文作为系统提示词，或作为你的“提示词优化器”预设指令。
+如果平台没有原生 Skill 机制，运行：
+
+```bash
+bash scripts/print-prompt.sh
+```
+
+把输出的纯正文作为系统提示词，或作为你的“提示词优化器”预设指令。
