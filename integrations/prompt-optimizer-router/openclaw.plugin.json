@@ -2,7 +2,7 @@
   "id": "prompt-optimizer-router",
   "name": "Prompt Optimizer Router",
   "version": "0.1.0",
-  "description": "Detect prompt-optimizer trigger phrases in ordinary OpenClaw chats and inject the prompt optimizer system prompt for that run.",
+  "description": "Detect prompt-optimizer trigger phrases in ordinary OpenClaw chats, bridge the turn to a temporary specialist session, and inject the result back into the host chat.",
   "kind": "utility",
   "configSchema": {
     "type": "object",
@@ -13,9 +13,26 @@
         "description": "Path to the canonical SKILL.md prompt file.",
         "default": "~/.openclaw/workspace-prompt-optimizer/prompt-optimizer/SKILL.md"
       },
+      "specialistAgentId": {
+        "type": "string",
+        "description": "Agent id used to process routed prompt-optimizer turns.",
+        "default": "prompt_optimizer"
+      },
+      "specialistThinking": {
+        "type": "string",
+        "description": "Thinking level used only for routed specialist turns.",
+        "enum": ["off", "minimal", "low", "medium", "high", "xhigh"],
+        "default": "low"
+      },
+      "specialistTimeoutMs": {
+        "type": "integer",
+        "description": "Maximum wait time for the specialist turn before injecting a failure note.",
+        "default": 300000,
+        "minimum": 1000
+      },
       "enabledAgentIds": {
         "type": "array",
-        "description": "Optional allowlist of agent IDs that should accept prompt-optimizer trigger injection. Empty means all agents except prompt_optimizer itself.",
+        "description": "Optional allowlist of host agent IDs that should accept prompt-optimizer trigger routing. Empty means all agents except prompt_optimizer itself.",
         "items": {
           "type": "string"
         },

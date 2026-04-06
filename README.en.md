@@ -18,7 +18,7 @@ bash scripts/install-local.sh all
 | Option | Install | Best for | Pros | Trade-off |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | people who only want explicit invocation and do not want to touch host-level routing | simplest, safest, easiest to reason about | you need to enter the dedicated workspace or invoke it explicitly |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent; matching turns are intercepted and the specialist result is injected back into the same chat | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still not a persistent agent-session swap |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent; matching turns are intercepted and a one-shot specialist result is injected back into the same chat | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still not a persistent agent-session swap |
 
 Recommendation:
 
@@ -39,7 +39,7 @@ Recommendation:
 - Claude / Codex: install first, call `$prompt-optimizer`, then use one of the four triggers above. If you are already inside the skill, you can paste the raw content directly.
 - OpenClaw:
   - `skill-only`: enter the dedicated workspace and paste the raw content, or invoke the optimizer explicitly
-  - `host-router`: ordinary agent chats can recognize the same trigger phrases, suppress the host reply for that turn, and inject the specialist result back into the same chat
+  - `host-router`: ordinary agent chats can recognize the same trigger phrases, suppress the host reply for that turn, run the specialist in a temporary isolated session, and inject the result back into the same chat
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body.
 
 Semantic/contextual invocation is supported too, but it should stay a compatibility layer rather than the headline entry point. For example:
@@ -100,7 +100,11 @@ Constraints:
 
 ```bash
 node scripts/test-trigger-detection.mjs
+node scripts/test-host-router-e2e.mjs
 ```
+
+- `test-trigger-detection.mjs`: validates the supported trigger phrases
+- `test-host-router-e2e.mjs`: validates the full one-shot host-router contract end to end
 
 ## Privacy
 
@@ -131,6 +135,8 @@ node scripts/test-trigger-detection.mjs
 - `integrations/prompt-optimizer-router/`: source for the OpenClaw `host-router` local trigger plugin, wired through `plugins.load.paths`
 - `scripts/print-prompt.sh`: print the plain prompt body for direct copy-paste
 - `scripts/test-trigger-detection.mjs`: minimal trigger regression test
+- `scripts/test-host-router-e2e.mjs`: end-to-end host-router regression test
+- `docs/landscape.zh-CN.md`: comparison with adjacent project types and why this repo stays single-purpose
 
 ## Maintenance
 

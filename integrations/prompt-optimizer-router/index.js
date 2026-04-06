@@ -12,8 +12,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execFileAsync = promisify(execFile);
 const SILENT_REPLY_TOKEN = "NO_REPLY";
 const DEFAULT_SPECIALIST_AGENT_ID = "prompt_optimizer";
+const DEFAULT_SPECIALIST_THINKING = "low";
 const DUPLICATE_ROUTE_WINDOW_MS = 5000;
 const pendingRoutes = new Map();
+const VALID_THINKING_LEVELS = new Set([
+  "off",
+  "minimal",
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+]);
 
 let cachedSkill = {
   file: "",
@@ -47,6 +56,12 @@ function normalizeCliPath(...values) {
     return trimmed;
   }
   return "openclaw";
+}
+
+function normalizeThinkingLevel(value, fallback) {
+  if (typeof value !== "string") return fallback;
+  const normalized = value.trim().toLowerCase();
+  return VALID_THINKING_LEVELS.has(normalized) ? normalized : fallback;
 }
 
 function resolveDefaultSkillFile() {
@@ -113,6 +128,10 @@ function buildRuntimeConfig(cfg) {
       typeof cfg.specialistAgentId === "string" && cfg.specialistAgentId.trim()
         ? cfg.specialistAgentId.trim()
         : DEFAULT_SPECIALIST_AGENT_ID,
+    specialistThinking: normalizeThinkingLevel(
+      cfg.specialistThinking,
+      DEFAULT_SPECIALIST_THINKING,
+    ),
     specialistTimeoutMs: normalizePositiveInteger(cfg.specialistTimeoutMs, 5 * 60 * 1000),
     rpcTimeoutMs: normalizePositiveInteger(cfg.rpcTimeoutMs, 10 * 1000),
     abortWaitMs: normalizePositiveInteger(cfg.abortWaitMs, 1500),
@@ -168,6 +187,12 @@ function shellQuote(value) {
   return `'${String(value).replace(/'/g, `'\\''`)}'`;
 }
 
+function buildSpecialistSessionKey(agentId, bridgeId) {
+  const safeAgentId = String(agentId || DEFAULT_SPECIALIST_AGENT_ID).trim().toLowerCase();
+  const safeBridgeId = String(bridgeId || randomUUID()).trim().toLowerCase();
+  return `agent:${safeAgentId}:router-${safeBridgeId}`;
+}
+
 async function runOpenClawJson(cliPath, args, timeoutMs) {
   const command = [cliPath, ...args].map(shellQuote).join(" ");
   const result = await execFileAsync("/bin/zsh", ["-lc", command], {
@@ -188,6 +213,37 @@ function extractSpecialistText(payload) {
   return "";
 }
 
+async function runSpecialistAgent(runtimeCfg, route) {
+  route.specialistSessionKey = buildSpecialistSessionKey(
+    runtimeCfg.specialistAgentId,
+    route.bridgeId,
+  );
+
+  const params = JSON.stringify({
+    agentId: runtimeCfg.specialistAgentId,
+    sessionKey: route.specialistSessionKey,
+    message: route.normalized,
+    thinking: runtimeCfg.specialistThinking,
+    idempotencyKey: route.bridgeId,
+  });
+
+  return runOpenClawJson(
+    runtimeCfg.cliPath,
+    [
+      "gateway",
+      "call",
+      "agent",
+      "--expect-final",
+      "--json",
+      "--timeout",
+      String(runtimeCfg.specialistTimeoutMs),
+      "--params",
+      params,
+    ],
+    runtimeCfg.specialistTimeoutMs + 5000,
+  );
+}
+
 async function injectMessage(runtimeCfg, route, message, logger) {
   const params = JSON.stringify({
     sessionKey: route.sessionKey,
@@ -201,6 +257,37 @@ async function injectMessage(runtimeCfg, route, message, logger) {
   logger.info?.(
     `[${PLUGIN_ID}] injected specialist reply into session=${route.sessionKey} bridge=${route.bridgeId}`,
   );
+}
+
+async function cleanupSpecialistSession(runtimeCfg, route, logger) {
+  if (!route?.specialistSessionKey) return;
+  try {
+    const params = JSON.stringify({
+      key: route.specialistSessionKey,
+      deleteTranscript: true,
+    });
+    await runOpenClawJson(
+      runtimeCfg.cliPath,
+      [
+        "gateway",
+        "call",
+        "sessions.delete",
+        "--json",
+        "--timeout",
+        String(runtimeCfg.rpcTimeoutMs),
+        "--params",
+        params,
+      ],
+      runtimeCfg.rpcTimeoutMs + 2000,
+    );
+    logger.info?.(
+      `[${PLUGIN_ID}] cleaned temporary specialist session=${route.specialistSessionKey} bridge=${route.bridgeId}`,
+    );
+  } catch (error) {
+    logger.warn?.(
+      `[${PLUGIN_ID}] failed to clean specialist session=${route.specialistSessionKey} bridge=${route.bridgeId}: ${formatExecFailure(error)}`,
+    );
+  }
 }
 
 async function abortHostRun(runtimeCfg, route, logger) {
@@ -263,24 +350,11 @@ async function runBridgeTask(runtimeCfg, route, logger) {
       if (!isCurrentRoute(route)) return;
     }
 
-    const specialistArgs = [
-      "agent",
-      "--agent",
-      runtimeCfg.specialistAgentId,
-      "--message",
-      route.normalized,
-      "--json",
-    ];
-
     logger.info?.(
-      `[${PLUGIN_ID}] bridge start session=${route.sessionKey} bridge=${route.bridgeId} specialist=${runtimeCfg.specialistAgentId}`,
+      `[${PLUGIN_ID}] bridge start session=${route.sessionKey} bridge=${route.bridgeId} specialist=${runtimeCfg.specialistAgentId} thinking=${runtimeCfg.specialistThinking}`,
     );
 
-    const specialistPayload = await runOpenClawJson(
-      runtimeCfg.cliPath,
-      specialistArgs,
-      runtimeCfg.specialistTimeoutMs,
-    );
+    const specialistPayload = await runSpecialistAgent(runtimeCfg, route);
     if (!isCurrentRoute(route)) return;
 
     const specialistText = extractSpecialistText(specialistPayload);
@@ -303,6 +377,7 @@ async function runBridgeTask(runtimeCfg, route, logger) {
       );
     }
   } finally {
+    await cleanupSpecialistSession(runtimeCfg, route, logger);
     clearRoute(route);
   }
 }

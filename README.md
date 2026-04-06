@@ -47,7 +47,7 @@ bash scripts/install-local.sh all
 | 选项 | 怎么装 | 适合谁 | 优点 | 代价 |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | 只想主动调用 skill、不想碰宿主层的人 | 最简单、最稳、最容易理解；不会额外引入宿主级路由 | 需要显式进入提示词优化器工作区或明确调用 |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent；命中后会拦截主 agent 并把 specialist 结果注回原会话 | 多一层本地插件和宿主配置，排障面更大；它仍然不是持久会话切换 |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent；命中后会拦截主 agent，并把一次性的 specialist 结果注回原会话 | 多一层本地插件和宿主配置，排障面更大；它仍然不是持久会话切换 |
 
 选择建议：
 
@@ -58,12 +58,13 @@ bash scripts/install-local.sh all
 
 - `skill-only`：你会明确输入 `$prompt-optimizer`，或打开专门的提示词优化器工作区，再把原始内容贴进去
 - `host-router`：你正在普通主 agent 聊天，直接发“优化提示词：做个全球股票近况的调研”，宿主会拦截这轮主 agent 输出，转给提示词优化器 specialist 处理，再把结果写回原会话
+- `host-router`：这条 specialist 会在独立的一次性临时 session 中运行，回写后立即结束，不会把后续普通对话持续锁在提示词优化器里
 
 注意：
 - `skill-only` 不会往你的 OpenClaw 配置里保留宿主路由插件项
 - `host-router` 默认只作用于 `main`，如果你确实要挂到别的 agent，再自行改 OpenClaw 配置
 - 如果你想要最少配置和最容易排障的方案，优先选 `skill-only`
-- `host-router` 现在默认会压掉主 agent 的正文并回写 specialist 结果，但它仍然是“按轮路由”，不是进入一个持久的 prompt_optimizer 会话
+- `host-router` 现在默认会压掉主 agent 的正文，并把独立临时 specialist session 的结果回写回来；它是“按轮路由”，不是进入一个持久的 prompt_optimizer 会话
 
 ## 快速调用
 
@@ -141,9 +142,13 @@ bash scripts/install-local.sh all
 
 ```bash
 node scripts/test-trigger-detection.mjs
+node scripts/test-host-router-e2e.mjs
 ```
 
-这会验证推荐触发和语义触发是否仍然可识别，避免以后改文档或安装脚本时把触发搞坏。
+- `test-trigger-detection.mjs`：验证推荐触发和语义触发是否仍然可识别
+- `test-host-router-e2e.mjs`：验证 `host-router` 是否仍然满足“一次 trigger，只优化一轮；回写后立即回到普通对话”
+
+第二个脚本需要本机 OpenClaw Gateway 正在运行，且已安装 `host-router` 模式。
 
 ## 隐私说明
 
@@ -164,6 +169,7 @@ node scripts/test-trigger-detection.mjs
 - `references/model-adaptation.md`：不同模型的适配参考
 - `docs/platforms.zh-CN.md`：各平台接入说明
 - `docs/examples.zh-CN.md`：更完整的复杂示例
+- `docs/landscape.zh-CN.md`：同类项目对比，以及为什么本项目坚持单一职责
 
 ## 维护规则
 

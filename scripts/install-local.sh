@@ -129,6 +129,12 @@ entries[pluginId] = {
   config: {
     ...previousConfig,
     skillFile,
+    specialistAgentId: typeof previousConfig.specialistAgentId === 'string' && previousConfig.specialistAgentId.trim()
+      ? previousConfig.specialistAgentId
+      : 'prompt_optimizer',
+    specialistThinking: typeof previousConfig.specialistThinking === 'string' && previousConfig.specialistThinking.trim()
+      ? previousConfig.specialistThinking
+      : 'low',
     enabledAgentIds: Array.isArray(previousConfig.enabledAgentIds) && previousConfig.enabledAgentIds.length > 0
       ? previousConfig.enabledAgentIds
       : ["main"],
