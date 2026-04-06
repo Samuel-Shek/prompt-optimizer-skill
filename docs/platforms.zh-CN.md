@@ -97,6 +97,7 @@ bash scripts/install-local.sh openclaw --mode host-router
 - 普通 Agent 会话里也能识别 trigger，并拦截这一轮主 agent 输出
 - 命中后会调用提示词优化器 specialist，并把结果回写到原会话
 - specialist 在一次性临时 session 中运行，回写后会结束并清理，不持续污染后续对话
+- specialist 默认使用 `xhigh` 思考强度；等待期间会先给 1 到 2 条很短的状态提示，避免长时间完全无反馈
 - 这依然不是“持久切进 prompt_optimizer 会话”，而是按轮路由
 
 适合：

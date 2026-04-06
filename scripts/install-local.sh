@@ -134,7 +134,7 @@ entries[pluginId] = {
       : 'prompt_optimizer',
     specialistThinking: typeof previousConfig.specialistThinking === 'string' && previousConfig.specialistThinking.trim()
       ? previousConfig.specialistThinking
-      : 'low',
+      : 'xhigh',
     enabledAgentIds: Array.isArray(previousConfig.enabledAgentIds) && previousConfig.enabledAgentIds.length > 0
       ? previousConfig.enabledAgentIds
       : ["main"],

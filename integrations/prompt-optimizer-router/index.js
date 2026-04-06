@@ -12,9 +12,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const execFileAsync = promisify(execFile);
 const SILENT_REPLY_TOKEN = "NO_REPLY";
 const DEFAULT_SPECIALIST_AGENT_ID = "prompt_optimizer";
-const DEFAULT_SPECIALIST_THINKING = "low";
+const DEFAULT_SPECIALIST_THINKING = "xhigh";
 const DUPLICATE_ROUTE_WINDOW_MS = 5000;
+const PROGRESS_NOTE_LABEL = "提示词优化器";
+const FIRST_PROGRESS_DELAY_MS = 1200;
+const SECOND_PROGRESS_DELAY_MS = 12000;
+const HOST_ARTIFACT_SUPPRESSION_MS = 30000;
 const pendingRoutes = new Map();
+const recentRouteSuppressions = new Map();
 const VALID_THINKING_LEVELS = new Set([
   "off",
   "minimal",
@@ -144,6 +149,9 @@ function pruneExpiredRoutes(maxAgeMs) {
   for (const [sessionKey, route] of pendingRoutes.entries()) {
     if (now - route.createdAt > maxAgeMs) pendingRoutes.delete(sessionKey);
   }
+  for (const [sessionKey, expiresAt] of recentRouteSuppressions.entries()) {
+    if (expiresAt <= now) recentRouteSuppressions.delete(sessionKey);
+  }
 }
 
 function getActiveRoute(sessionKey) {
@@ -158,7 +166,24 @@ function isCurrentRoute(route) {
 
 function clearRoute(route) {
   if (!isCurrentRoute(route)) return;
+  recentRouteSuppressions.set(route.sessionKey, Date.now() + HOST_ARTIFACT_SUPPRESSION_MS);
   pendingRoutes.delete(route.sessionKey);
+}
+
+function extractMessageText(message) {
+  const content = Array.isArray(message?.content) ? message.content : [];
+  return content
+    .map((block) => (typeof block?.text === "string" ? block.text : ""))
+    .join("\n")
+    .trim();
+}
+
+function shouldSuppressHostArtifact(message) {
+  const text = extractMessageText(message);
+  return Boolean(
+    message?.openclawAbort ||
+      /^NO(?:_?REPLY)?\b/i.test(text),
+  );
 }
 
 function buildSilentDelegatePrompt() {
@@ -248,15 +273,33 @@ async function injectMessage(runtimeCfg, route, message, logger) {
   const params = JSON.stringify({
     sessionKey: route.sessionKey,
     message,
+    ...(route.injectLabel ? { label: route.injectLabel } : {}),
   });
   await runOpenClawJson(
     runtimeCfg.cliPath,
     ["gateway", "call", "chat.inject", "--json", "--timeout", String(runtimeCfg.rpcTimeoutMs), "--params", params],
     runtimeCfg.rpcTimeoutMs + 2000,
   );
-  logger.info?.(
-    `[${PLUGIN_ID}] injected specialist reply into session=${route.sessionKey} bridge=${route.bridgeId}`,
-  );
+  if (!route.injectLabel) {
+    logger.info?.(
+      `[${PLUGIN_ID}] injected specialist reply into session=${route.sessionKey} bridge=${route.bridgeId}`,
+    );
+  }
+}
+
+async function injectLabeledMessage(runtimeCfg, route, message, label, logger, kind) {
+  const previousLabel = route.injectLabel;
+  route.injectLabel = label;
+  try {
+    await injectMessage(runtimeCfg, route, message, logger);
+    if (kind) {
+      logger.info?.(
+        `[${PLUGIN_ID}] injected ${kind} note into session=${route.sessionKey} bridge=${route.bridgeId}`,
+      );
+    }
+  } finally {
+    route.injectLabel = previousLabel;
+  }
 }
 
 async function cleanupSpecialistSession(runtimeCfg, route, logger) {
@@ -288,6 +331,44 @@ async function cleanupSpecialistSession(runtimeCfg, route, logger) {
       `[${PLUGIN_ID}] failed to clean specialist session=${route.specialistSessionKey} bridge=${route.bridgeId}: ${formatExecFailure(error)}`,
     );
   }
+}
+
+function scheduleProgressNotes(runtimeCfg, route, logger) {
+  const emit = (delayMs, message, progressKey) => {
+    setTimeout(() => {
+      void (async () => {
+        if (!isCurrentRoute(route)) return;
+        if (route.finalInjected) return;
+        if (route[progressKey]) return;
+        route[progressKey] = true;
+        try {
+          await injectLabeledMessage(
+            runtimeCfg,
+            route,
+            message,
+            PROGRESS_NOTE_LABEL,
+            logger,
+            progressKey,
+          );
+        } catch (error) {
+          logger.warn?.(
+            `[${PLUGIN_ID}] failed to inject ${progressKey} note for session=${route.sessionKey} bridge=${route.bridgeId}: ${formatExecFailure(error)}`,
+          );
+        }
+      })();
+    }, delayMs);
+  };
+
+  emit(
+    FIRST_PROGRESS_DELAY_MS,
+    "已接管，正在分析原始需求并识别任务类型……",
+    "progressNote1Injected",
+  );
+  emit(
+    SECOND_PROGRESS_DELAY_MS,
+    "还在重写终版提示词，正在压缩结构并补足关键约束……",
+    "progressNote2Injected",
+  );
 }
 
 async function abortHostRun(runtimeCfg, route, logger) {
@@ -362,6 +443,7 @@ async function runBridgeTask(runtimeCfg, route, logger) {
       throw new Error("specialist returned no text payload");
     }
 
+    route.finalInjected = true;
     await injectMessage(runtimeCfg, route, specialistText, logger);
   } catch (error) {
     if (!isCurrentRoute(route)) return;
@@ -447,12 +529,17 @@ const promptOptimizerRouterPlugin = {
         triggerLabel: match.label,
         runId: null,
         abortPromise: null,
+        finalInjected: false,
+        progressNote1Injected: false,
+        progressNote2Injected: false,
+        injectLabel: null,
       };
       pendingRoutes.set(route.sessionKey, route);
 
       setTimeout(() => {
         void runBridgeTask(runtimeCfg, route, api.logger);
       }, 0);
+      scheduleProgressNotes(runtimeCfg, route, api.logger);
 
       api.logger.info(
         `[${PLUGIN_ID}] bridge armed ${match.kind}/${match.label} on agent=${ctx?.agentId || "unknown"} session=${ctx?.sessionKey || ctx?.sessionId || "unknown"} bridge=${route.bridgeId}`,
@@ -473,11 +560,21 @@ const promptOptimizerRouterPlugin = {
     const suppressHostTranscript = (event, ctx) => {
       pruneExpiredRoutes(runtimeCfg.bridgeMaxAgeMs);
       const route = getActiveRoute(ctx?.sessionKey);
-      if (!route || ctx?.agentId !== route.agentId) return;
       const role = event?.message?.role;
       if (role !== "assistant" && role !== "toolResult") return;
+      if (route && ctx?.agentId === route.agentId) {
+        api.logger.info?.(
+          `[${PLUGIN_ID}] suppressed host transcript role=${role} session=${route.sessionKey} bridge=${route.bridgeId}`,
+        );
+        return { block: true };
+      }
+      const suppressionExpiresAt = ctx?.sessionKey
+        ? recentRouteSuppressions.get(ctx.sessionKey)
+        : null;
+      if (!suppressionExpiresAt || suppressionExpiresAt <= Date.now()) return;
+      if (!shouldSuppressHostArtifact(event?.message)) return;
       api.logger.info?.(
-        `[${PLUGIN_ID}] suppressed host transcript role=${role} session=${route.sessionKey} bridge=${route.bridgeId}`,
+        `[${PLUGIN_ID}] suppressed late host artifact role=${role} session=${ctx?.sessionKey || "unknown"}`,
       );
       return { block: true };
     };

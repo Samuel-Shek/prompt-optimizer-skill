@@ -9,7 +9,8 @@ const execFileAsync = promisify(execFile);
 
 const OPENCLAW_CLI = process.env.OPENCLAW_CLI || "openclaw";
 const SEND_TIMEOUT_MS = Number(process.env.PROMPT_OPTIMIZER_E2E_SEND_TIMEOUT_MS || 10_000);
-const WAIT_TIMEOUT_MS = Number(process.env.PROMPT_OPTIMIZER_E2E_WAIT_TIMEOUT_MS || 90_000);
+const HISTORY_TIMEOUT_MS = Number(process.env.PROMPT_OPTIMIZER_E2E_HISTORY_TIMEOUT_MS || 30_000);
+const WAIT_TIMEOUT_MS = Number(process.env.PROMPT_OPTIMIZER_E2E_WAIT_TIMEOUT_MS || 180_000);
 const POLL_INTERVAL_MS = Number(process.env.PROMPT_OPTIMIZER_E2E_POLL_INTERVAL_MS || 1_000);
 
 function shellQuote(value) {
@@ -50,7 +51,7 @@ async function gatewayCall(method, params, timeoutMs) {
 }
 
 async function getHistory(sessionKey) {
-  return gatewayCall("chat.history", { sessionKey }, SEND_TIMEOUT_MS);
+  return gatewayCall("chat.history", { sessionKey }, HISTORY_TIMEOUT_MS);
 }
 
 async function deleteSession(key) {
@@ -68,8 +69,12 @@ async function deleteSession(key) {
 async function waitFor(label, timeoutMs, fn) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const value = await fn();
-    if (value) return value;
+    try {
+      const value = await fn();
+      if (value) return value;
+    } catch {
+      // When the gateway is busy under xhigh thinking, transient polling timeouts are acceptable.
+    }
     await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
   }
   throw new Error(`timeout waiting for ${label}`);
@@ -94,14 +99,18 @@ try {
 
   const routed = await waitFor("gateway-injected routed reply", WAIT_TIMEOUT_MS, async () => {
     const history = await getHistory(sessionKey);
-    const injected = (history.messages || []).find(
+    const injectedMessages = (history.messages || []).filter(
       (message) =>
         message?.role === "assistant" &&
         message?.provider === "openclaw" &&
         message?.model === "gateway-injected",
     );
+    const injected = injectedMessages.find((message) => {
+      const text = extractText(message);
+      return /(任务目标|请基于|```markdown)/.test(text);
+    });
     if (!injected) return null;
-    return { history, injected };
+    return { history, injected, injectedMessages };
   });
 
   const routedText = extractText(routed.injected);
@@ -136,18 +145,23 @@ try {
     return { history, latest, text };
   });
 
-  const injectedCount = (plain.history.messages || []).filter(
+  const injectedMessages = (plain.history.messages || []).filter(
     (message) =>
       message?.role === "assistant" &&
       message?.provider === "openclaw" &&
       message?.model === "gateway-injected",
-  ).length;
-
-  assert.equal(
-    injectedCount,
-    1,
-    "expected exactly one routed gateway-injected reply in the host session",
   );
+  const promptReplies = injectedMessages.filter((message) => {
+    const text = extractText(message);
+    return /(任务目标|请基于|```markdown)/.test(text);
+  });
+  const progressReplies = injectedMessages.filter((message) => {
+    const text = extractText(message);
+    return /正在分析原始需求|还在重写终版提示词/.test(text);
+  });
+
+  assert.equal(promptReplies.length, 1, "expected exactly one final optimized prompt reply");
+  assert.ok(progressReplies.length >= 1, "expected at least one short progress note");
   assert.notEqual(
     plain.latest?.model,
     "gateway-injected",

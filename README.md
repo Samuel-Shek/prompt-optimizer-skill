@@ -47,7 +47,7 @@ bash scripts/install-local.sh all
 | 选项 | 怎么装 | 适合谁 | 优点 | 代价 |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | 只想主动调用 skill、不想碰宿主层的人 | 最简单、最稳、最容易理解；不会额外引入宿主级路由 | 需要显式进入提示词优化器工作区或明确调用 |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent；命中后会拦截主 agent，并把一次性的 specialist 结果注回原会话 | 多一层本地插件和宿主配置，排障面更大；它仍然不是持久会话切换 |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent；命中后会拦截主 agent，用 `xhigh` specialist 单轮处理，并把结果注回原会话 | 多一层本地插件和宿主配置，排障面更大；它仍然不是持久会话切换 |
 
 选择建议：
 
@@ -59,12 +59,14 @@ bash scripts/install-local.sh all
 - `skill-only`：你会明确输入 `$prompt-optimizer`，或打开专门的提示词优化器工作区，再把原始内容贴进去
 - `host-router`：你正在普通主 agent 聊天，直接发“优化提示词：做个全球股票近况的调研”，宿主会拦截这轮主 agent 输出，转给提示词优化器 specialist 处理，再把结果写回原会话
 - `host-router`：这条 specialist 会在独立的一次性临时 session 中运行，回写后立即结束，不会把后续普通对话持续锁在提示词优化器里
+- `host-router`：等待期间会先给一两条很短的状态提示，例如“正在分析原始需求”或“正在重写终版提示词”，避免长时间完全无反馈
 
 注意：
 - `skill-only` 不会往你的 OpenClaw 配置里保留宿主路由插件项
 - `host-router` 默认只作用于 `main`，如果你确实要挂到别的 agent，再自行改 OpenClaw 配置
 - 如果你想要最少配置和最容易排障的方案，优先选 `skill-only`
 - `host-router` 现在默认会压掉主 agent 的正文，并把独立临时 specialist session 的结果回写回来；它是“按轮路由”，不是进入一个持久的 prompt_optimizer 会话
+- 当前默认给 routed specialist 使用 `xhigh` 思考强度，所以质量优先，代价是等待时间会比 `skill-only` 更长
 
 ## 快速调用
 

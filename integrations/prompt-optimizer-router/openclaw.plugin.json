@@ -22,7 +22,7 @@
         "type": "string",
         "description": "Thinking level used only for routed specialist turns.",
         "enum": ["off", "minimal", "low", "medium", "high", "xhigh"],
-        "default": "low"
+        "default": "xhigh"
       },
       "specialistTimeoutMs": {
         "type": "integer",
