@@ -1,0 +1,26 @@
+{
+  "id": "prompt-optimizer-router",
+  "name": "Prompt Optimizer Router",
+  "version": "0.1.0",
+  "description": "Detect prompt-optimizer trigger phrases in ordinary OpenClaw chats and inject the prompt optimizer system prompt for that run.",
+  "kind": "utility",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "skillFile": {
+        "type": "string",
+        "description": "Path to the canonical SKILL.md prompt file.",
+        "default": "~/.openclaw/workspace-prompt-optimizer/prompt-optimizer/SKILL.md"
+      },
+      "enabledAgentIds": {
+        "type": "array",
+        "description": "Optional allowlist of agent IDs that should accept prompt-optimizer trigger injection. Empty means all agents except prompt_optimizer itself.",
+        "items": {
+          "type": "string"
+        },
+        "default": []
+      }
+    }
+  }
+}

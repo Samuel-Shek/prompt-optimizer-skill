@@ -69,30 +69,59 @@ bash scripts/install-local.sh claude
 
 ### OpenClaw
 
-一条命令：
+OpenClaw 提供两种模式：
 
 ```bash
-bash scripts/install-local.sh openclaw
+bash scripts/install-local.sh openclaw --mode skill-only
+bash scripts/install-local.sh openclaw --mode host-router
 ```
 
-默认会把接入点放到 `~/.openclaw/workspace-prompt-optimizer`。
+#### 模式 A：`skill-only`
 
-之后把这个工作区接到对应 Agent，直接发：
+- 只安装专用工作区 `~/.openclaw/workspace-prompt-optimizer`
+- 不启用宿主级触发插件
+- 只有你主动进入提示词优化器工作区，或明确调用它时，才会生效
+
+适合：
+
+- 不想研究 OpenClaw 宿主层和插件层的人
+- 希望行为最可预测、排障最简单的人
+- 把它当成一个“主动调用 skill”来用的人
+
+#### 模式 B：`host-router`
+
+- 安装专用工作区 `~/.openclaw/workspace-prompt-optimizer`
+- 同时通过 `plugins.load.paths` 启用仓库里的本地触发插件
+- 普通 Agent 会话里也能识别 trigger，并临时切到提示词优化器逻辑
+
+适合：
+
+- 已经把 OpenClaw 当主聊天入口的人
+- 想在普通会话里直接发短 trigger，不想先切工作区的人
+- 能接受多一层本地插件和宿主配置的人
+
+推荐：
+
+- 大多数公开用户先从 `skill-only` 开始
+- 只有当你已经明确需要“普通会话内短 trigger”体验时，再升级到 `host-router`
+
+推荐主触发：
 
 ```text
 优化提示词：{{粘贴原始内容}}
-```
-
-或者：
-
-```text
 帮我优化：{{粘贴原始内容}}
 {{原始内容}}——优化提示词
 {{原始内容}}——帮我优化
 ```
 
-不需要额外铺垫，也不需要先解释“我要让你帮我优化”。
-如果用户明确表达“调用提示词优化器”这一层意图，也应视为有效触发。
+语义兼容触发也支持，例如：
+
+```text
+调用提示词优化器：{{粘贴原始内容}}
+调用 Prompt Optimizer：{{粘贴原始内容}}
+```
+
+推荐对外传播时只用 4 个主触发；语义触发留给宿主层自动兼容。
 
 ### Codex / 其他 Agent 系统
 
@@ -132,3 +161,13 @@ bash scripts/print-prompt.sh
 ```
 
 把输出的纯正文作为系统提示词，或作为你的“提示词优化器”预设指令。
+
+## 验证
+
+如果你改了触发规则或安装脚本，运行：
+
+```bash
+node scripts/test-trigger-detection.mjs
+```
+
+这会做一轮最小回归，确保推荐触发和语义兼容触发没有被改坏。

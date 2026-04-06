@@ -8,69 +8,95 @@ It does one thing only: rewrite a raw request, rough prompt, system prompt, or a
 
 ```bash
 bash scripts/install-local.sh claude
-bash scripts/install-local.sh openclaw
+bash scripts/install-local.sh openclaw --mode skill-only
+bash scripts/install-local.sh openclaw --mode host-router
 bash scripts/install-local.sh all
 ```
 
+## Two OpenClaw modes
+
+| Option | Install | Best for | Pros | Trade-off |
+|---|---|---|---|---|
+| `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | people who only want explicit invocation and do not want to touch host-level routing | simplest, safest, easiest to reason about | you need to enter the dedicated workspace or invoke it explicitly |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; short trigger phrases work without switching workspaces first | adds a local plugin and host-level config, so there is more moving surface to maintain |
+
+Recommendation:
+
+- choose `skill-only` if you mainly use Claude / Codex / skill directories, or if you want the optimizer to run only when you explicitly call it
+- choose `host-router` if you mainly use OpenClaw chat surfaces and want short wrapper phrases to work in ordinary sessions
+
 ## Quick use
 
-- Claude / Codex: install first, call `$prompt-optimizer`, then either paste the raw content directly or use a short wrapper such as:
+- Recommended primary triggers:
   - `optimize prompt: research the current global stock market`
   - `help me optimize: research the current global stock market`
   - `research the current global stock market -- optimize prompt`
   - `research the current global stock market -- help me optimize`
-- OpenClaw: same idea. Use one of the short wrappers above, or enter the prompt optimizer flow and paste the raw content directly
-- Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body
 
-Those are the recommended primary triggers, but the invocation should not be overly rigid.
-If the surrounding context clearly indicates that the user wants to invoke the prompt optimizer, it should count too, for example:
+- Claude / Codex: install first, call `$prompt-optimizer`, then use one of the four triggers above. If you are already inside the skill, you can paste the raw content directly.
+- OpenClaw:
+  - `skill-only`: enter the dedicated workspace and paste the raw content, or invoke the optimizer explicitly
+  - `host-router`: ordinary agent chats can recognize the same trigger phrases and temporarily switch into prompt-optimizer mode for that run
+- Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body.
+
+Semantic/contextual invocation is supported too, but it should stay a compatibility layer rather than the headline entry point. For example:
 
 - `invoke prompt optimizer: research the current global stock market`
 - `call Prompt Optimizer: research the current global stock market`
-- `use the prompt optimizer on this: {{raw content}}`
 
-The rule is: **prefer intent detection over brittle command matching.**
+The rule is: **publish the four primary triggers, but let the host route compatible semantic invocations when the intent is obvious.**
 
 ## Example
 
-Input:
+See [docs/examples.zh-CN.md](docs/examples.zh-CN.md) for fuller Chinese examples.
+
+More demanding input:
 
 ```text
-optimize prompt: research the current global stock market
+help me optimize: review the workflows I have been doing recently, figure out which SOPs are good candidates for public skills, and rank them with reasons, dependencies, reuse scenarios, and GitHub release notes
 ```
 
 Expected output style:
 
 ```text
-Please produce a structured briefing on the current state of the global stock market for a reader who already knows the basics of investing but wants a fast, decision-useful overview.
+Please review the work items, partial SOPs, scattered notes, or workflow fragments I provide next and determine which of them are the best candidates to turn into public reusable skills.
 
-Default scope:
-- United States
-- Europe
-- China (A-shares / Hong Kong)
-- Japan
+Goal:
+- identify the strongest skill candidates
+- explain why they are worth packaging
+- suggest the minimum publishable scope instead of bloated all-in-one plans
 
-Focus on:
-- overall market performance over the last 1-3 months
-- major macro drivers such as inflation, rates, the US dollar, geopolitics, and growth expectations
-- strongest and weakest sectors, with explanations
-- dominant narratives, disagreement points, and near-term risks
-- the most important indicators and events to watch over the next 1-3 months
+Analysis requirements:
+1. for each candidate, judge task clarity, repetition frequency, standardizability, and dependence on tacit personal knowledge
+2. classify each item as:
+   - a single-purpose skill
+   - an agent workflow
+   - an internal SOP that should stay private
+3. for each skill-worthy candidate, provide:
+   - suggested skill name
+   - suitable use cases
+   - core inputs
+   - core outputs
+   - essential constraints
+   - why it deserves priority
+   - what is still missing before a GitHub release
+4. for items that should not be public, explain the blocker clearly
 
-Output requirements:
-1. start with a 200-300 word executive summary
-2. then break down each region with:
-   - market overview
-   - key drivers
-   - major sectors or themes
-3. add a separate section for shared risks and disagreement points
-4. end with a prioritized watchlist of 5-8 indicators or events
+Output format:
+- start with a 150-250 word summary
+- then provide a table covering all candidates
+- end with a “top 3 skills to build first” list
 
 Constraints:
-- avoid generic commentary; make clear judgments where possible
-- label what is confirmed information vs inference
-- if anything is still underspecified, mark it as `{{to confirm: ...}}` instead of stopping
-- write in Chinese if the original user request is in Chinese
+- do not force every SOP into a skill
+- if details are missing, mark them as `{{to confirm: ...}}`
+- prefer actionable release advice over abstract framework talk
+```
+
+## Trigger regression test
+
+```bash
+node scripts/test-trigger-detection.mjs
 ```
 
 ## Privacy
@@ -99,7 +125,9 @@ Constraints:
 - `AGENTS.md`: alias for agent systems that read `AGENTS.md`
 - `CLAUDE.md`: alias for systems that read `CLAUDE.md`
 - `scripts/install-local.sh`: one-command local installer for Claude / Codex / OpenClaw
+- `integrations/prompt-optimizer-router/`: source for the OpenClaw `host-router` local trigger plugin, wired through `plugins.load.paths`
 - `scripts/print-prompt.sh`: print the plain prompt body for direct copy-paste
+- `scripts/test-trigger-detection.mjs`: minimal trigger regression test
 
 ## Maintenance
 

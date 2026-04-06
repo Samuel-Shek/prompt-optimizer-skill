@@ -2,7 +2,7 @@
 
 仓库地址：
 
-<https://github.com/Samuel-Shek/prompt-optimizer-skill>
+<repo-url>
 
 ## 一句话简介
 
@@ -20,11 +20,11 @@
 - 简单任务不过度工程化
 - 支持 Claude / GPT / Gemini / DeepSeek / 开源模型的格式适配
 - 可直接接入 Claude、Codex、OpenClaw，本地也能一键安装
-- 实际调用很短，直接说“优化提示词：xxx”“帮我优化：xxx”，或者“xxx——优化提示词”“xxx——帮我优化”就行
-- 如果上下文已经明确是在调用提示词优化器，也支持更自然的说法，比如“调用提示词优化器：...”
+- 实际调用很短，主触发只保留 4 个：“优化提示词：xxx”“帮我优化：xxx”“xxx——优化提示词”“xxx——帮我优化”
+- OpenClaw 安装后还会带上本地触发插件，普通会话里也能识别这些调用
 
 Repo：
-https://github.com/Samuel-Shek/prompt-optimizer-skill
+<repo-url>
 
 ## 飞书 / Telegram / 群发版
 
@@ -46,7 +46,7 @@ https://github.com/Samuel-Shek/prompt-optimizer-skill
 - 其他支持直接粘贴 system prompt 的平台
 
 仓库：
-https://github.com/Samuel-Shek/prompt-optimizer-skill
+<repo-url>
 
 本地接入也比较简单：
 
@@ -99,7 +99,7 @@ Highlights:
 - 支持 Claude、Codex、OpenClaw 的本地接入
 
 仓库地址：
-https://github.com/Samuel-Shek/prompt-optimizer-skill
+<repo-url>
 
 ## 推荐转发语
 

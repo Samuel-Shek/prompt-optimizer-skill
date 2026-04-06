@@ -1,4 +1,4 @@
 interface:
   display_name: "提示词优化器"
-  short_description: "支持前缀、后缀、语义触发，也可直接贴内容"
+  short_description: "四种主触发，语义调用兼容"
   default_prompt: "优化提示词：{{在这里粘贴你的原始内容}}"
