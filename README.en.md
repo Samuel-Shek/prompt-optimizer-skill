@@ -18,7 +18,7 @@ bash scripts/install-local.sh all
 | Option | Install | Best for | Pros | Trade-off |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | people who only want explicit invocation and do not want to touch host-level routing | simplest, safest, easiest to reason about | you need to enter the dedicated workspace or invoke it explicitly |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still host-level routing, not a full agent swap |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent; matching turns are intercepted and the specialist result is injected back into the same chat | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still not a persistent agent-session swap |
 
 Recommendation:
 
@@ -26,7 +26,7 @@ Recommendation:
 - choose `host-router` if you mainly use OpenClaw chat surfaces and want short wrapper phrases to work in ordinary sessions
 - `skill-only` removes the host-router plugin config instead of leaving a disabled stub behind
 - `host-router` only attaches to `main` by default; extend it manually only if you really want that scope
-- if you need the cleanest possible optimizer behavior with no host-level style bleed-through, prefer `skill-only`
+- if you want the least moving parts and the easiest troubleshooting path, prefer `skill-only`
 
 ## Quick use
 
@@ -39,7 +39,7 @@ Recommendation:
 - Claude / Codex: install first, call `$prompt-optimizer`, then use one of the four triggers above. If you are already inside the skill, you can paste the raw content directly.
 - OpenClaw:
   - `skill-only`: enter the dedicated workspace and paste the raw content, or invoke the optimizer explicitly
-  - `host-router`: ordinary agent chats can recognize the same trigger phrases and temporarily switch into prompt-optimizer mode for that run
+  - `host-router`: ordinary agent chats can recognize the same trigger phrases, suppress the host reply for that turn, and inject the specialist result back into the same chat
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body.
 
 Semantic/contextual invocation is supported too, but it should stay a compatibility layer rather than the headline entry point. For example:

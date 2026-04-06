@@ -94,8 +94,9 @@ bash scripts/install-local.sh openclaw --mode host-router
 - 安装专用工作区 `~/.openclaw/workspace-prompt-optimizer`
 - 同时通过 `plugins.load.paths` 启用仓库里的本地触发插件
 - 默认只挂到 `main`，不全局作用于所有 agent
-- 普通 Agent 会话里也能识别 trigger，并临时切到提示词优化器逻辑
-- 这属于宿主内路由增强，不是完整 agent 替换；如果你追求最纯的提示词优化器输出，仍应优先选 `skill-only`
+- 普通 Agent 会话里也能识别 trigger，并拦截这一轮主 agent 输出
+- 命中后会调用提示词优化器 specialist，并把结果回写到原会话
+- 这依然不是“持久切进 prompt_optimizer 会话”，而是按轮路由
 
 适合：
 
@@ -107,6 +108,7 @@ bash scripts/install-local.sh openclaw --mode host-router
 
 - 大多数公开用户先从 `skill-only` 开始
 - 只有当你已经明确需要“普通会话内短 trigger”体验时，再升级到 `host-router`
+- 如果你更在意少配置、好排障、会话边界清晰，继续用 `skill-only`
 
 推荐主触发：
 

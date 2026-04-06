@@ -51,36 +51,73 @@ function normalizeExtractedText(text) {
   return String(text || "").replace(/\r\n/g, "\n").trim();
 }
 
+function buildPromptCandidates(raw) {
+  const candidates = new Set();
+  const push = (value) => {
+    const normalized = normalizeExtractedText(value);
+    if (normalized) candidates.add(normalized);
+  };
+
+  push(raw);
+
+  const memoryTail = raw.split("</relevant-memories>").pop();
+  if (memoryTail && memoryTail !== raw) push(memoryTail);
+
+  const lines = raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length > 0) {
+    push(lines[lines.length - 1]);
+  }
+
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+    const timestampMatch = line.match(/^\[[^\]]+\]\s*([\s\S]+)$/u);
+    if (timestampMatch?.[1]) {
+      push(timestampMatch[1]);
+      break;
+    }
+  }
+
+  return Array.from(candidates);
+}
+
 export function detectPromptOptimizerTrigger(prompt) {
   const raw = normalizeExtractedText(prompt);
   if (!raw) {
     return { matched: false, raw, extracted: "", kind: "none", label: "" };
   }
 
-  for (const rule of PREFIX_RULES) {
-    const match = raw.match(rule.re);
-    if (!match) continue;
-    const extracted = normalizeExtractedText(match[1]);
-    return {
-      matched: true,
-      raw,
-      extracted: extracted || raw,
-      kind: rule.kind,
-      label: rule.label,
-    };
-  }
+  const candidates = buildPromptCandidates(raw);
 
-  for (const rule of SUFFIX_RULES) {
-    const match = raw.match(rule.re);
-    if (!match) continue;
-    const extracted = normalizeExtractedText(match[1]);
-    return {
-      matched: true,
-      raw,
-      extracted: extracted || raw,
-      kind: rule.kind,
-      label: rule.label,
-    };
+  for (const candidate of candidates) {
+    for (const rule of PREFIX_RULES) {
+      const match = candidate.match(rule.re);
+      if (!match) continue;
+      const extracted = normalizeExtractedText(match[1]);
+      return {
+        matched: true,
+        raw,
+        extracted: extracted || candidate,
+        kind: rule.kind,
+        label: rule.label,
+      };
+    }
+
+    for (const rule of SUFFIX_RULES) {
+      const match = candidate.match(rule.re);
+      if (!match) continue;
+      const extracted = normalizeExtractedText(match[1]);
+      return {
+        matched: true,
+        raw,
+        extracted: extracted || candidate,
+        kind: rule.kind,
+        label: rule.label,
+      };
+    }
   }
 
   return { matched: false, raw, extracted: "", kind: "none", label: "" };
