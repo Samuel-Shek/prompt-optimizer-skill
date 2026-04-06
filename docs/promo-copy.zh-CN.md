@@ -20,7 +20,8 @@
 - 简单任务不过度工程化
 - 支持 Claude / GPT / Gemini / DeepSeek / 开源模型的格式适配
 - 可直接接入 Claude、Codex、OpenClaw，本地也能一键安装
-- 实际调用很短，直接说“优化：xxx”或“xxx——优化提示词”就行
+- 实际调用很短，直接说“优化提示词：xxx”“帮我优化：xxx”，或者“xxx——优化提示词”“xxx——帮我优化”就行
+- 如果上下文已经明确是在调用提示词优化器，也支持更自然的说法，比如“调用提示词优化器：...”
 
 Repo：
 https://github.com/Samuel-Shek/prompt-optimizer-skill

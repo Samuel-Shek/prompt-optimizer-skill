@@ -14,20 +14,29 @@ bash scripts/install-local.sh all
 
 ## Quick use
 
-- Claude / Codex: install first, call `$prompt-optimizer`, then use the shortest trigger you want:
-  - `optimize: research the current global stock market`
+- Claude / Codex: install first, call `$prompt-optimizer`, then either paste the raw content directly or use a short wrapper such as:
   - `optimize prompt: research the current global stock market`
   - `help me optimize: research the current global stock market`
   - `research the current global stock market -- optimize prompt`
-- OpenClaw: same idea. Short trigger first, raw content right after, no setup sentence needed
+  - `research the current global stock market -- help me optimize`
+- OpenClaw: same idea. Use one of the short wrappers above, or enter the prompt optimizer flow and paste the raw content directly
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body
+
+Those are the recommended primary triggers, but the invocation should not be overly rigid.
+If the surrounding context clearly indicates that the user wants to invoke the prompt optimizer, it should count too, for example:
+
+- `invoke prompt optimizer: research the current global stock market`
+- `call Prompt Optimizer: research the current global stock market`
+- `use the prompt optimizer on this: {{raw content}}`
+
+The rule is: **prefer intent detection over brittle command matching.**
 
 ## Example
 
 Input:
 
 ```text
-optimize: research the current global stock market
+optimize prompt: research the current global stock market
 ```
 
 Expected output style:
