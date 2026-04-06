@@ -45,15 +45,15 @@ bash scripts/install-local.sh claude
 之后直接调用 `$prompt-optimizer`，然后只要说：
 
 ```text
-优化提示词：
-{{粘贴原始内容}}
+优化：{{粘贴原始内容}}
 ```
 
-或者更短：
+也可以：
 
 ```text
-帮我优化：
-{{粘贴原始内容}}
+优化提示词：{{粘贴原始内容}}
+帮我优化：{{粘贴原始内容}}
+{{原始内容}} —— 优化提示词
 ```
 
 ### OpenClaw
@@ -69,11 +69,10 @@ bash scripts/install-local.sh openclaw
 之后把这个工作区接到对应 Agent，直接发：
 
 ```text
-优化提示词：
-{{粘贴原始内容}}
+优化：{{粘贴原始内容}}
 ```
 
-不需要额外铺垫。
+不需要额外铺垫，也不需要先解释“我要让你帮我优化”。
 
 ### Codex / 其他 Agent 系统
 
@@ -86,8 +85,7 @@ bash scripts/install-local.sh codex
 优先使用 `AGENTS.md`；如果平台本身支持 Skill 目录，也可以直接使用 `SKILL.md`。实际调用时也尽量用最短触发词：
 
 ```text
-优化提示词：
-{{粘贴原始内容}}
+优化：{{粘贴原始内容}}
 ```
 
 ### ChatGPT / Gemini / DeepSeek / 其他通用平台

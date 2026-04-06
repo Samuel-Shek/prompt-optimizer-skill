@@ -14,14 +14,12 @@ bash scripts/install-local.sh all
 
 ## Quick use
 
-- Claude / Codex: install first, call `$prompt-optimizer`, then just say:
-  - `optimize prompt`
-  - `help me optimize`
-  - and paste the raw request / prompt / system prompt / agent instruction directly
-- OpenClaw: attach it to the target agent workspace, then do the same:
-  - `optimize prompt`
-  - `help me optimize`
-  - followed by the raw content
+- Claude / Codex: install first, call `$prompt-optimizer`, then use the shortest trigger you want:
+  - `optimize: research the current global stock market`
+  - `optimize prompt: research the current global stock market`
+  - `help me optimize: research the current global stock market`
+  - `research the current global stock market -- optimize prompt`
+- OpenClaw: same idea. Short trigger first, raw content right after, no setup sentence needed
 - Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body
 
 ## Example
@@ -29,43 +27,41 @@ bash scripts/install-local.sh all
 Input:
 
 ```text
-optimize prompt:
-
-I want Claude to analyze the work I’m currently doing and figure out which SOPs are worth turning into reusable Skills.
-
-What I need is roughly:
-- identify recurring workflows across my projects and day-to-day tasks
-- separate reusable SOPs from one-off tasks
-- rank the candidates by reuse potential, clarity of boundaries, and publishability
-- suggest which ones are worth packaging for GitHub first
-- explain why some items should not become Skills
-- keep the output structured and decision-oriented, not generic
+optimize: research the current global stock market
 ```
 
 Expected output style:
 
 ```text
-<instructions>
-Analyze the work I provide and identify which SOPs are strong candidates for reusable Skills.
-</instructions>
+Please produce a structured briefing on the current state of the global stock market for a reader who already knows the basics of investing but wants a fast, decision-useful overview.
 
-<context>
-I am working across multiple recurring tasks and projects. Some of them may be stable, repeatable, and bounded enough to become Skills, while others may still be too ad hoc.
-</context>
+Default scope:
+- United States
+- Europe
+- China (A-shares / Hong Kong)
+- Japan
 
-<output_format>
-Return:
-1. candidate Skills
-2. priority ranking
-3. items that should not become Skills
-4. GitHub packaging suggestions
-</output_format>
+Focus on:
+- overall market performance over the last 1-3 months
+- major macro drivers such as inflation, rates, the US dollar, geopolitics, and growth expectations
+- strongest and weakest sectors, with explanations
+- dominant narratives, disagreement points, and near-term risks
+- the most important indicators and events to watch over the next 1-3 months
 
-<constraints>
-- base judgments on the actual work described
-- explain ranking criteria
-- distinguish reusable SOPs from one-off work
-</constraints>
+Output requirements:
+1. start with a 200-300 word executive summary
+2. then break down each region with:
+   - market overview
+   - key drivers
+   - major sectors or themes
+3. add a separate section for shared risks and disagreement points
+4. end with a prioritized watchlist of 5-8 indicators or events
+
+Constraints:
+- avoid generic commentary; make clear judgments where possible
+- label what is confirmed information vs inference
+- if anything is still underspecified, mark it as `{{to confirm: ...}}` instead of stopping
+- write in Chinese if the original user request is in Chinese
 ```
 
 ## Privacy

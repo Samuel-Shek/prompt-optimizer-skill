@@ -20,7 +20,7 @@
 - 简单任务不过度工程化
 - 支持 Claude / GPT / Gemini / DeepSeek / 开源模型的格式适配
 - 可直接接入 Claude、Codex、OpenClaw，本地也能一键安装
-- 实际调用很短，直接说“优化提示词”或“帮我优化”再贴内容就行
+- 实际调用很短，直接说“优化：xxx”或“xxx —— 优化提示词”就行
 
 Repo：
 https://github.com/Samuel-Shek/prompt-optimizer-skill
