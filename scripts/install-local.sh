@@ -96,29 +96,45 @@ cfg.plugins.allow = enabled
   : allow.filter((entry) => entry !== pluginId);
 const loadPaths = Array.isArray(cfg.plugins.load?.paths) ? cfg.plugins.load.paths : [];
 const sanitizedLoadPaths = loadPaths.filter((entry) => entry !== legacyPluginPath);
+const entries = cfg.plugins.entries && typeof cfg.plugins.entries === 'object'
+  ? { ...cfg.plugins.entries }
+  : {};
+
+if (!enabled) {
+  if (entries[pluginId]) delete entries[pluginId];
+  cfg.plugins.entries = entries;
+  cfg.plugins.load = {
+    ...(cfg.plugins.load || {}),
+    paths: sanitizedLoadPaths.filter((entry) => entry !== pluginPath),
+  };
+  fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
+  process.exit(0);
+}
+
 cfg.plugins.load = {
   ...(cfg.plugins.load || {}),
-  paths: enabled
-    ? Array.from(new Set([...sanitizedLoadPaths, pluginPath]))
-    : sanitizedLoadPaths.filter((entry) => entry !== pluginPath),
+  paths: Array.from(new Set([...sanitizedLoadPaths, pluginPath])),
 };
-cfg.plugins.entries ||= {};
 
-const previousEntry = cfg.plugins.entries[pluginId] && typeof cfg.plugins.entries[pluginId] === 'object'
-  ? cfg.plugins.entries[pluginId]
+const previousEntry = entries[pluginId] && typeof entries[pluginId] === 'object'
+  ? entries[pluginId]
   : {};
 const previousConfig = previousEntry.config && typeof previousEntry.config === 'object'
   ? previousEntry.config
   : {};
 
-cfg.plugins.entries[pluginId] = {
+entries[pluginId] = {
   ...previousEntry,
-  enabled,
+  enabled: true,
   config: {
     ...previousConfig,
     skillFile,
+    enabledAgentIds: Array.isArray(previousConfig.enabledAgentIds) && previousConfig.enabledAgentIds.length > 0
+      ? previousConfig.enabledAgentIds
+      : ["main"],
   },
 };
+cfg.plugins.entries = entries;
 
 fs.writeFileSync(configFile, `${JSON.stringify(cfg, null, 2)}\n`);
 NODE
@@ -126,7 +142,7 @@ NODE
   if [ "$enabled" = "true" ]; then
     echo "[ok] enabled OpenClaw plugin $OPENCLAW_PLUGIN_ID in $OPENCLAW_CONFIG_FILE"
   else
-    echo "[ok] disabled OpenClaw plugin $OPENCLAW_PLUGIN_ID in $OPENCLAW_CONFIG_FILE"
+    echo "[ok] removed OpenClaw plugin $OPENCLAW_PLUGIN_ID from $OPENCLAW_CONFIG_FILE"
   fi
 }
 

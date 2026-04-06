@@ -80,6 +80,7 @@ bash scripts/install-local.sh openclaw --mode host-router
 
 - 只安装专用工作区 `~/.openclaw/workspace-prompt-optimizer`
 - 不启用宿主级触发插件
+- 不在 OpenClaw 配置里保留宿主路由插件残留项
 - 只有你主动进入提示词优化器工作区，或明确调用它时，才会生效
 
 适合：
@@ -92,7 +93,9 @@ bash scripts/install-local.sh openclaw --mode host-router
 
 - 安装专用工作区 `~/.openclaw/workspace-prompt-optimizer`
 - 同时通过 `plugins.load.paths` 启用仓库里的本地触发插件
+- 默认只挂到 `main`，不全局作用于所有 agent
 - 普通 Agent 会话里也能识别 trigger，并临时切到提示词优化器逻辑
+- 这属于宿主内路由增强，不是完整 agent 替换；如果你追求最纯的提示词优化器输出，仍应优先选 `skill-only`
 
 适合：
 

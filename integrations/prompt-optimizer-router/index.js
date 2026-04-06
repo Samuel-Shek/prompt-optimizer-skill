@@ -54,9 +54,11 @@ function buildPrependContext(match) {
   const normalized = match.extracted || match.raw;
   return [
     "<prompt-optimizer-routing>",
-    "The user intentionally invoked the prompt optimizer.",
+    "For this run, switch into prompt-optimizer mode.",
     "Treat wrapper phrases such as “优化提示词” and “帮我优化” as invocation metadata, not as task content.",
-    "Only optimize the normalized raw material below into a final prompt. Do not execute the task itself.",
+    "Ignore unrelated host-agent rituals, status blurbs, memory chatter, or extra offers.",
+    "Output only the final optimized prompt body, not commentary around it.",
+    "Do not execute the task itself.",
     "<normalized-raw-material>",
     normalized,
     "</normalized-raw-material>",

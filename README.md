@@ -47,7 +47,7 @@ bash scripts/install-local.sh all
 | 选项 | 怎么装 | 适合谁 | 优点 | 代价 |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | 只想主动调用 skill、不想碰宿主层的人 | 最简单、最稳、最容易理解；不会额外引入宿主级路由 | 需要显式进入提示词优化器工作区或明确调用 |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；在普通 Agent 会话里也能识别 trigger 并临时切到提示词优化器模式 | 多一层本地插件和宿主配置，排障面更大 |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent | 多一层本地插件和宿主配置，排障面更大；本质仍是宿主内路由，不是完整 agent 替换 |
 
 选择建议：
 
@@ -58,6 +58,11 @@ bash scripts/install-local.sh all
 
 - `skill-only`：你会明确输入 `$prompt-optimizer`，或打开专门的提示词优化器工作区，再把原始内容贴进去
 - `host-router`：你正在普通主 agent 聊天，直接发“优化提示词：做个全球股票近况的调研”，宿主会临时切成提示词优化器逻辑
+
+注意：
+- `skill-only` 不会往你的 OpenClaw 配置里保留宿主路由插件项
+- `host-router` 默认只作用于 `main`，如果你确实要挂到别的 agent，再自行改 OpenClaw 配置
+- 如果你要求输出风格和专用提示词优化器完全一致、不要任何宿主层语气干扰，优先选 `skill-only`
 
 ## 快速调用
 

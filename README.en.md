@@ -18,12 +18,15 @@ bash scripts/install-local.sh all
 | Option | Install | Best for | Pros | Trade-off |
 |---|---|---|---|---|
 | `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | people who only want explicit invocation and do not want to touch host-level routing | simplest, safest, easiest to reason about | you need to enter the dedicated workspace or invoke it explicitly |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; short trigger phrases work without switching workspaces first | adds a local plugin and host-level config, so there is more moving surface to maintain |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still host-level routing, not a full agent swap |
 
 Recommendation:
 
 - choose `skill-only` if you mainly use Claude / Codex / skill directories, or if you want the optimizer to run only when you explicitly call it
 - choose `host-router` if you mainly use OpenClaw chat surfaces and want short wrapper phrases to work in ordinary sessions
+- `skill-only` removes the host-router plugin config instead of leaving a disabled stub behind
+- `host-router` only attaches to `main` by default; extend it manually only if you really want that scope
+- if you need the cleanest possible optimizer behavior with no host-level style bleed-through, prefer `skill-only`
 
 ## Quick use
 
