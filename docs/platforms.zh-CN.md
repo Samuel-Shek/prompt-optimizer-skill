@@ -51,9 +51,7 @@ bash scripts/install-local.sh claude
 也可以：
 
 ```text
-优化提示词：{{粘贴原始内容}}
-帮我优化：{{粘贴原始内容}}
-{{原始内容}} —— 优化提示词
+{{原始内容}}——优化提示词
 ```
 
 ### OpenClaw
@@ -72,6 +70,12 @@ bash scripts/install-local.sh openclaw
 优化：{{粘贴原始内容}}
 ```
 
+或者：
+
+```text
+{{原始内容}}——优化提示词
+```
+
 不需要额外铺垫，也不需要先解释“我要让你帮我优化”。
 
 ### Codex / 其他 Agent 系统
@@ -86,6 +90,12 @@ bash scripts/install-local.sh codex
 
 ```text
 优化：{{粘贴原始内容}}
+```
+
+或者：
+
+```text
+{{原始内容}}——优化提示词
 ```
 
 ### ChatGPT / Gemini / DeepSeek / 其他通用平台

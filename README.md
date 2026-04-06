@@ -45,9 +45,7 @@ bash scripts/install-local.sh all
 
 - Claude / Codex：安装后直接用 `$prompt-optimizer`，然后直接这样发就行：
   - `优化：做个全球股票近况的调研`
-  - `优化提示词：做个全球股票近况的调研`
-  - `帮我优化：做个全球股票近况的调研`
-  - `做个全球股票近况的调研。——优化提示词`
+  - `做个全球股票近况的调研——优化提示词`
 - OpenClaw：把它接进对应 Agent 工作区后也是一样，直接发短 trigger + 原始内容，不需要额外铺垫
 - 其他平台：运行 `bash scripts/print-prompt.sh`，拿到可直接粘贴的纯正文版本
 
