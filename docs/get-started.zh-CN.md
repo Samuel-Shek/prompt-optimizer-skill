@@ -6,10 +6,19 @@
 
 ---
 
+## 0. 只想 3 分钟先跑通
+
+直接看：
+
+- [3 分钟上手](3-minute-quickstart.zh-CN.md)
+
+---
+
 ## 1. 先判断你属于哪种情况
 
 | 你的情况 | 最推荐路径 |
 |---|---|
+| 我只想 3 分钟先跑通一次 | [3 分钟上手](3-minute-quickstart.zh-CN.md) |
 | 我只想最快在本机终端里装好并开始用 | [CLI 快速安装与使用](cli-quickstart.zh-CN.md) |
 | 我想在飞书里私聊一个专用“提示词优化器”机器人 | [飞书 / Lark 私聊接入教程](feishu-private-bot.zh-CN.md) |
 | 我想在 Telegram 或 Discord 里私聊一个专用机器人 | [Telegram / Discord 私聊接入教程](im-private-bots.zh-CN.md) |
@@ -75,6 +84,11 @@
 ### 最省事
 
 先选：
+- [3 分钟上手](3-minute-quickstart.zh-CN.md)
+
+### 想看完整一点但仍然是新手入口
+
+先选：
 - [CLI 快速安装与使用](cli-quickstart.zh-CN.md)
 
 ### 最适合飞书用户
@@ -106,6 +120,7 @@
 ## 6. 相关文档
 
 - [CLI 快速安装与使用](cli-quickstart.zh-CN.md)
+- [3 分钟上手](3-minute-quickstart.zh-CN.md)
 - [飞书 / Lark 私聊接入教程](feishu-private-bot.zh-CN.md)
 - [Telegram / Discord 私聊接入教程](im-private-bots.zh-CN.md)
 - [各平台接入说明](platforms.zh-CN.md)
