@@ -1,13 +1,35 @@
 # Prompt Optimizer
 
-A single-purpose prompt optimization skill / agent prompt pack.
+A single-purpose skill that does one thing: turn your rough ideas, messy prompts, and chaotic system prompts into polished, ready-to-paste AI instructions.
 
-It does one thing only: rewrite a raw request, rough prompt, system prompt, or agent instruction into a polished final prompt that can be copied into mainstream AI models directly.
+中文版：[README.md](README.md)
+
+## What it does
+
+- Rewrites a rough request into a structured, actionable prompt
+- Cleans up an existing prompt — removes fluff, resolves contradictions, adds missing constraints
+- Restructures system prompts and agent instructions into layered, maintainable formats
+- Adapts prompt structure for Claude, GPT, Gemini, DeepSeek, and open-source models
+
+## What it doesn't do
+
+- Execute the task itself — it only writes the prompt
+- Research on your behalf by default (but if background info is needed to write a better prompt, it may search the web on its own)
+- Write code, run commands, or publish to GitHub
+- Output multiple versions — you get the single best version, directly
+
+## Design principles
+
+- Single responsibility — prompt optimization only
+- Direct output by default — no explanations, no "would you like me to optimize this?"
+- Complexity matches the task — a simple email prompt stays simple; a multi-step agent instruction gets the structure it needs
+- Missing info gets placeholders, not questions — `{{to fill: variable | example | default}}`
 
 ## Quick install
 
 ```bash
 bash scripts/install-local.sh claude
+bash scripts/install-local.sh codex
 bash scripts/install-local.sh openclaw --mode skill-only
 bash scripts/install-local.sh openclaw --mode host-router
 bash scripts/install-local.sh all
@@ -15,133 +37,100 @@ bash scripts/install-local.sh all
 
 ## Two OpenClaw modes
 
-| Option | Install | Best for | Pros | Trade-off |
+| Mode | Install | Best for | Pros | Trade-off |
 |---|---|---|---|---|
-| `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | people who only want explicit invocation and do not want to touch host-level routing | simplest, safest, easiest to reason about | you need to enter the dedicated workspace or invoke it explicitly |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | people who already live in OpenClaw chats and want short triggers to work in ordinary agent sessions | fastest UX; scoped to `main` by default instead of every agent; matching turns are intercepted, routed through an `xhigh` one-shot specialist, and injected back into the same chat | adds a local plugin and host-level config, so there is more moving surface to maintain; this is still not a persistent agent-session swap |
+| `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | Explicit invocation only; no host-level routing | Simplest, safest, easiest to reason about | You must enter the dedicated workspace or invoke it explicitly |
+| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | Short triggers in ordinary chat sessions | Fastest UX; scoped to `main` agent by default; matching turns are intercepted, routed through an `xhigh` specialist, and injected back | Adds a local plugin + host config; more surface to maintain; not a persistent session swap |
 
-Recommendation:
-
-- choose `skill-only` if you mainly use Claude / Codex / skill directories, or if you want the optimizer to run only when you explicitly call it
-- choose `host-router` if you mainly use OpenClaw chat surfaces and want short wrapper phrases to work in ordinary sessions
-- `skill-only` removes the host-router plugin config instead of leaving a disabled stub behind
-- `host-router` only attaches to `main` by default; extend it manually only if you really want that scope
-- if you want the least moving parts and the easiest troubleshooting path, prefer `skill-only`
+**Recommendation:** choose `skill-only` unless you mainly use OpenClaw chat surfaces and want seamless short triggers.
 
 ## Quick use
 
-- Recommended primary triggers:
-  - `optimize prompt: research the current global stock market`
-  - `help me optimize: research the current global stock market`
-  - `research the current global stock market -- optimize prompt`
-  - `research the current global stock market -- help me optimize`
+Four recommended triggers:
 
-- Claude / Codex: install first, call `$prompt-optimizer`, then use one of the four triggers above. If you are already inside the skill, you can paste the raw content directly.
-- OpenClaw:
-  - `skill-only`: enter the dedicated workspace and paste the raw content, or invoke the optimizer explicitly
-  - `host-router`: ordinary agent chats can recognize the same trigger phrases, suppress the host reply for that turn, run the specialist in a temporary isolated session, inject one or two short progress notes while waiting, and then inject the final result back into the same chat
-- Other platforms: run `bash scripts/print-prompt.sh` to get a clean pasteable prompt body.
-
-Semantic/contextual invocation is supported too, but it should stay a compatibility layer rather than the headline entry point. For example:
-
-- `invoke prompt optimizer: research the current global stock market`
-- `call Prompt Optimizer: research the current global stock market`
-
-The rule is: **publish the four primary triggers, but let the host route compatible semantic invocations when the intent is obvious.**
-
-## Example
-
-See [docs/examples.zh-CN.md](docs/examples.zh-CN.md) for fuller Chinese examples.
-
-More demanding input:
-
-```text
-help me optimize: review the workflows I have been doing recently, figure out which SOPs are good candidates for public skills, and rank them with reasons, dependencies, reuse scenarios, and GitHub release notes
+```
+优化提示词：<your raw content>
+帮我优化：<your raw content>
+<your raw content>——优化提示词
+<your raw content>——帮我优化
 ```
 
-Expected output style:
+English triggers also work:
 
-```text
-Please review the work items, partial SOPs, scattered notes, or workflow fragments I provide next and determine which of them are the best candidates to turn into public reusable skills.
-
-Goal:
-- identify the strongest skill candidates
-- explain why they are worth packaging
-- suggest the minimum publishable scope instead of bloated all-in-one plans
-
-Analysis requirements:
-1. for each candidate, judge task clarity, repetition frequency, standardizability, and dependence on tacit personal knowledge
-2. classify each item as:
-   - a single-purpose skill
-   - an agent workflow
-   - an internal SOP that should stay private
-3. for each skill-worthy candidate, provide:
-   - suggested skill name
-   - suitable use cases
-   - core inputs
-   - core outputs
-   - essential constraints
-   - why it deserves priority
-   - what is still missing before a GitHub release
-4. for items that should not be public, explain the blocker clearly
-
-Output format:
-- start with a 150-250 word summary
-- then provide a table covering all candidates
-- end with a “top 3 skills to build first” list
-
-Constraints:
-- do not force every SOP into a skill
-- if details are missing, mark them as `{{to confirm: ...}}`
-- prefer actionable release advice over abstract framework talk
+```
+optimize prompt: <your raw content>
+use Prompt Optimizer: <your raw content>
 ```
 
-## Trigger regression test
+- **Claude / Codex:** call `$prompt-optimizer`, then paste your content using any trigger above. If you're already inside the skill, just paste the raw content directly.
+- **OpenClaw skill-only:** enter the dedicated workspace, then paste.
+- **OpenClaw host-router:** use any trigger in a normal agent chat — the router intercepts the turn, runs a specialist, and injects the result back.
+- **Other platforms:** run `bash scripts/print-prompt.sh` to get a clean prompt body you can paste anywhere.
+
+## Examples
+
+**One sentence → full prompt:**
+
+```
+optimize prompt: help me write a job application email
+```
+
+Outputs a complete prompt with recipient placeholders, structure requirements, tone constraints, and a list of things to avoid — ready to paste into any AI.
+
+**Casual description → professional instruction:**
+
+```
+帮我优化：我想让 AI 帮我每周总结工作，就是那种发给老板看的周报，别写得太官方
+```
+
+"Don't make it too formal" becomes specific style rules, output structure, and a banned-phrases list.
+
+**Messy system prompt → layered rewrite:**
+
+```
+帮我优化下面这个客服 agent 的 system prompt，太乱了——优化提示词
+(paste your original prompt)
+```
+
+Reorganizes a stream-of-consciousness ruleset into: identity → behavior rules → task workflow → prohibitions → safety boundaries. Removes every sentence that doesn't change AI behavior.
+
+For full before → after examples, see [docs/examples.zh-CN.md](docs/examples.zh-CN.md).
+
+## Regression tests
 
 ```bash
 node scripts/test-trigger-detection.mjs
 node scripts/test-host-router-e2e.mjs
 ```
 
-- `test-trigger-detection.mjs`: validates the supported trigger phrases
-- `test-host-router-e2e.mjs`: validates the full one-shot host-router contract end to end
+- `test-trigger-detection.mjs` — validates supported trigger phrases (no dependencies)
+- `test-host-router-e2e.mjs` — validates the full host-router one-shot contract end to end (requires a running local OpenClaw Gateway with `host-router` mode installed)
 
 ## Privacy
 
-- This repository does not include local chat logs, cache folders, credentials, or machine screenshots
-- Real desktop screenshots and GIFs are intentionally omitted to avoid exposing local environment details
+- This repository contains no chat logs, cache directories, credentials, or local screenshots
+- Desktop screenshots and GIFs are intentionally omitted to avoid exposing local environment details
 - Only shareable skill files, scripts, and documentation are published
 
-## Good for
+## Entry files
 
-- Improving an existing prompt
-- Turning a rough request into a usable AI instruction
-- Rewriting system prompts or agent instructions
-- Adapting prompt structure for Claude, GPT, Gemini, DeepSeek, and open-source models
-
-## Not for
-
-- Executing the task itself
-- Browsing the web
-- Writing code, running commands, or publishing to GitHub
-- Returning multiple prompt versions by default
-
-## Entry Files
-
-- `SKILL.md`: single source of truth and recommended edit point
-- `AGENTS.md`: alias for agent systems that read `AGENTS.md`
-- `CLAUDE.md`: alias for systems that read `CLAUDE.md`
-- `scripts/install-local.sh`: one-command local installer for Claude / Codex / OpenClaw
-- `integrations/prompt-optimizer-router/`: source for the OpenClaw `host-router` local trigger plugin, wired through `plugins.load.paths`
-- `scripts/print-prompt.sh`: print the plain prompt body for direct copy-paste
-- `scripts/test-trigger-detection.mjs`: minimal trigger regression test
-- `scripts/test-host-router-e2e.mjs`: end-to-end host-router regression test
-- `docs/landscape.zh-CN.md`: comparison with adjacent project types and why this repo stays single-purpose
+| File | Purpose |
+|---|---|
+| `SKILL.md` | Single source of truth — edit here |
+| `AGENTS.md` | Alias for agent systems that read `AGENTS.md` |
+| `CLAUDE.md` | Alias for workspace systems that read `CLAUDE.md` |
+| `scripts/install-local.sh` | One-command installer for Claude / Codex / OpenClaw |
+| `scripts/print-prompt.sh` | Export plain prompt body for copy-paste |
+| `integrations/prompt-optimizer-router/` | OpenClaw host-router plugin source |
+| `docs/examples.zh-CN.md` | Full before → after examples |
+| `docs/landscape.zh-CN.md` | Comparison with adjacent projects |
+| `docs/platforms.zh-CN.md` | Per-platform integration guide |
+| `references/model-adaptation.md` | Model-specific adaptation notes |
 
 ## Maintenance
 
-- Edit `SKILL.md` only
-- `AGENTS.md` and `CLAUDE.md` are aliases to the same source
+- Edit `SKILL.md` only — `AGENTS.md` and `CLAUDE.md` are kept in sync automatically
+- After cloning, all three entry files will be identical
 
 ## License
 

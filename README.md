@@ -91,54 +91,32 @@ bash scripts/install-local.sh all
 
 ## 示例
 
-详细例子见 [docs/examples.zh-CN.md](docs/examples.zh-CN.md)。
+详细 before → after 见 [docs/examples.zh-CN.md](docs/examples.zh-CN.md)。
 
-稍复杂一点的输入：
-
-```text
-帮我优化：盘点我最近在做的事情里，哪些 SOP 适合沉淀成公开 Skill，并输出优先级、理由、依赖、复用场景和 GitHub 发布建议
-```
-
-输出风格：
+**一句话 → 完整提示词：**
 
 ```text
-请基于我接下来提供的工作清单、项目片段、零散记录或 SOP 草稿，判断其中哪些内容最适合沉淀成可公开复用的 Skill。
-
-任务目标：
-- 找出最值得先做的 Skill 候选项
-- 解释为什么值得做
-- 给出最小可发布范围，而不是泛泛而谈的大而全方案
-
-分析要求：
-1. 先识别每个候选 SOP 的核心任务、重复频率、可标准化程度、是否依赖个人隐性经验
-2. 判断它更适合做成：
-   - 单用途 Skill
-   - Agent 工作流
-   - 仅内部 SOP，不适合公开
-3. 对适合做成 Skill 的候选项，按优先级输出：
-   - Skill 名称建议
-   - 适用场景
-   - 核心输入
-   - 核心输出
-   - 必要约束
-   - 为什么值得优先做
-   - 发布到 GitHub 前还缺什么
-4. 对不适合公开的项，明确说明阻碍点，例如：
-   - 强依赖私有数据
-   - 强依赖个人判断
-   - 流程还不稳定
-   - 安全边界不清楚
-
-输出格式：
-- 先给一段 150-250 字的结论摘要
-- 再用表格列出所有候选项的判断结果
-- 最后单独给一个“建议先做的前 3 个 Skill”清单
-
-约束条件：
-- 不要为了显得完整而强行把所有 SOP 都判成适合做 Skill
-- 如果某项信息不足，用 `{{待确认：...}}` 标出缺口
-- 优先给可执行的发布建议，而不是抽象方法论
+优化提示词：帮我写一封求职邮件
 ```
+
+会输出一段包含收件人占位符、邮件结构要求、语气约束和禁止项的终版提示词，拿到就能直接复制给任意 AI 使用。
+
+**口语化描述 → 专业指令：**
+
+```text
+帮我优化：我想让 AI 帮我每周总结工作，就是那种发给老板看的周报，别写得太官方
+```
+
+“别太官方”这种模糊感觉会被翻译成具体的风格规则、输出结构和禁止词清单。
+
+**混乱 system prompt → 分层重写：**
+
+```text
+帮我优化下面这个客服 agent 的 system prompt，太乱了——优化提示词
+（贴上你的原始 prompt）
+```
+
+会把意识流式的规则重组为：身份定义 → 行为规则 → 处理流程 → 禁止项 → 安全边界，删掉所有不改变 AI 行为的废话。
 
 ## 回归测试
 
@@ -197,10 +175,13 @@ prompt-optimizer/
 ├── scripts/
 │   ├── install-local.sh
 │   ├── print-prompt.sh
-│   └── test-trigger-detection.mjs
+│   ├── test-trigger-detection.mjs
+│   └── test-host-router-e2e.mjs
 ├── docs/
 │   ├── examples.zh-CN.md
-│   └── platforms.zh-CN.md
+│   ├── landscape.zh-CN.md
+│   ├── platforms.zh-CN.md
+│   └── promo-copy.zh-CN.md
 ├── agents/
 │   └── openai.yaml
 └── references/
