@@ -38,24 +38,21 @@ Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready
 
 #### 1. 手动模式（Manual Mode）
 
-> 你主动调用，它才工作。最简单、最稳。CLI 和桌面端通用。
+> 你主动调用，它才工作。最简单、最稳。
 
 | 平台 | 怎么用 |
 |---|---|
-| **Claude Code（CLI）** | 运行 `/prompt-optimizer`，然后贴入原始内容 |
-| **Claude Code（桌面端）** | 在输入框输入 `/prompt-optimizer`，或点 `+` → 「Slash commands」选择 |
-| **Codex（CLI / 桌面端）** | 同上 |
+| **Claude Code（CLI + 桌面端）** | 输入 `/prompt-optimizer`，然后贴入原始内容。桌面端也可以点 `+` → 「Slash commands」选择。安装一次，CLI 和桌面端都能用。 |
 | **OpenClaw** | 进入 `prompt-optimizer` 专用工作区，贴入原始内容 |
 
-> 💡 安装一次，CLI 和桌面端都能用——它们共享同一个 skills 目录。
+> ⚠️ Codex 没有 slash command 机制，无法直接调用 skill。Codex 用户请使用**自动模式**（通过 OpenClaw）或**复制粘贴模式**。
 
 安装：
 
 ```bash
-bash scripts/install-local.sh claude        # Claude Code
-bash scripts/install-local.sh codex         # Codex
+bash scripts/install-local.sh claude                       # Claude Code（CLI + 桌面端）
 bash scripts/install-local.sh openclaw --mode skill-only   # OpenClaw
-bash scripts/install-local.sh all           # 全部装
+bash scripts/install-local.sh all                          # 全部装
 ```
 
 #### 2. 自动模式（Auto Mode）
@@ -102,12 +99,12 @@ bash scripts/print-prompt.sh
 
 ### 手动模式 vs 自动模式怎么选？
 
-| | 手动模式 | 自动模式 |
-|---|---|---|
-| **适合** | Claude / Codex / 想主动调用才生效 | OpenClaw 聊天面板 / 飞书 / Telegram |
-| **触发方式** | 显式进入 skill 或工作区 | 在普通聊天发触发词 |
-| **配置复杂度** | 最低 | 多一层插件配置 |
-| **推荐** | 大多数人选这个 | 重度 OpenClaw 用户选这个 |
+| | 手动模式 | 自动模式 | 复制粘贴模式 |
+|---|---|---|---|
+| **适合** | Claude Code 用户 | OpenClaw 聊天面板 / 飞书 / Telegram | Codex / ChatGPT / 其他平台 |
+| **触发方式** | `/prompt-optimizer` | 在普通聊天发触发词 | 手动粘贴 prompt 正文 |
+| **配置复杂度** | 最低 | 多一层插件配置 | 零配置 |
+| **推荐** | Claude Code 用户首选 | 重度 OpenClaw 用户首选 | 不支持 skill 的平台 |
 
 ### 回归测试
 
@@ -168,22 +165,19 @@ A complete prompt with analysis dimensions, output structure, constraints, and p
 
 #### 1. Manual Mode
 
-> You invoke it explicitly. Simplest and most stable. Works in both CLI and desktop app.
+> You invoke it explicitly. Simplest and most stable.
 
 | Platform | How |
 |---|---|
-| **Claude Code (CLI)** | Run `/prompt-optimizer`, then paste your content |
-| **Claude Code (Desktop)** | Type `/prompt-optimizer` in the input box, or click `+` → "Slash commands" |
-| **Codex (CLI / Desktop)** | Same as above |
+| **Claude Code (CLI + Desktop)** | Type `/prompt-optimizer`, then paste your content. In the desktop app, you can also click `+` → "Slash commands". Install once, works in both CLI and desktop. |
 | **OpenClaw** | Enter the `prompt-optimizer` workspace, then paste |
 
-> 💡 Install once, use everywhere — CLI and desktop share the same skills directory.
+> ⚠️ Codex does not have a slash command system and cannot invoke skills directly. Codex users should use **Auto Mode** (via OpenClaw) or **Copy-Paste Mode**.
 
 Install:
 
 ```bash
 bash scripts/install-local.sh claude
-bash scripts/install-local.sh codex
 bash scripts/install-local.sh openclaw --mode skill-only
 bash scripts/install-local.sh all
 ```
