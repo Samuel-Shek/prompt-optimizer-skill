@@ -38,13 +38,16 @@ Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready
 
 #### 1. 手动模式（Manual Mode）
 
-> 你主动调用，它才工作。最简单、最稳。
+> 你主动调用，它才工作。最简单、最稳。CLI 和桌面端通用。
 
 | 平台 | 怎么用 |
 |---|---|
-| **Claude Code** | 运行 `$prompt-optimizer`，然后贴入原始内容 |
-| **Codex** | 同上 |
+| **Claude Code（CLI）** | 运行 `/prompt-optimizer`，然后贴入原始内容 |
+| **Claude Code（桌面端）** | 在输入框输入 `/prompt-optimizer`，或点 `+` → 「Slash commands」选择 |
+| **Codex（CLI / 桌面端）** | 同上 |
 | **OpenClaw** | 进入 `prompt-optimizer` 专用工作区，贴入原始内容 |
+
+> 💡 安装一次，CLI 和桌面端都能用——它们共享同一个 skills 目录。
 
 安装：
 
@@ -165,13 +168,16 @@ A complete prompt with analysis dimensions, output structure, constraints, and p
 
 #### 1. Manual Mode
 
-> You invoke it explicitly. Simplest and most stable.
+> You invoke it explicitly. Simplest and most stable. Works in both CLI and desktop app.
 
 | Platform | How |
 |---|---|
-| **Claude Code** | Run `$prompt-optimizer`, then paste your content |
-| **Codex** | Same as above |
+| **Claude Code (CLI)** | Run `/prompt-optimizer`, then paste your content |
+| **Claude Code (Desktop)** | Type `/prompt-optimizer` in the input box, or click `+` → "Slash commands" |
+| **Codex (CLI / Desktop)** | Same as above |
 | **OpenClaw** | Enter the `prompt-optimizer` workspace, then paste |
+
+> 💡 Install once, use everywhere — CLI and desktop share the same skills directory.
 
 Install:
 
