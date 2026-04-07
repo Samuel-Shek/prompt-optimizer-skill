@@ -1,189 +1,233 @@
-# 提示词优化器
+# Prompt Optimizer ｜ 提示词优化器
 
-一个单用途的提示词优化 Skill / Agent Prompt 包。
+把你随手写的一句话、一段粗糙需求、一份混杂的 system prompt，改写成可直接复制给任意 AI 使用的终版提示词。
 
-English version: [README.en.md](README.en.md)
+Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready-to-paste AI instruction.
 
-它只做一件事：把用户的原始需求、粗糙提示词、system prompt 或 agent 指令，改写成可直接复制给主流大模型使用的终版提示词。
+---
 
-## 它适合做什么
+## 🇨🇳 中文
 
+### 它是什么
+
+一个单用途 Skill：**只优化提示词，不执行任务本身。**
+
+你发给它的每一条消息都会被当作"原材料"，输出一段结构清晰、约束明确的终版提示词。
+
+适合：
 - 优化一段已有 prompt
-- 把口语化需求整理成专业提示词
+- 把口语化需求变成专业 AI 指令
 - 重写 system prompt / agent 指令
-- 按 Claude / GPT / Gemini / DeepSeek / 开源模型适配提示词格式
+- 按 Claude / GPT / Gemini / DeepSeek / 开源模型适配格式
 
-## 它不做什么
+### 示例
 
-- 不直接执行原任务
-- 不主动替你做调研（但如果优化提示词需要了解背景信息，会自行判断是否联网搜索）
-- 不直接写代码、跑命令、发 GitHub
-- 不默认输出多个版本
+**你输入：**
 
-## 设计原则
+```
+优化提示词：帮我做一份竞品分析
+```
 
-- 单一职责
-- 默认直接输出终版提示词
-- 简单任务不过度工程化
-- 信息不足时用占位符标记，而不是停住
+**它输出：**
 
-## 适用对象
+一段包含分析维度、输出结构、约束条件和占位符的完整提示词——拿到就能直接复制给任意 AI 使用。
 
-- 想提高 prompt 质量的人
-- 想把 agent 指令写得更稳的人
-- 想把一段模糊需求改写成可执行 AI 指令的人
+👉 完整 before → after 示例见 [docs/examples.zh-CN.md](docs/examples.zh-CN.md)
 
-## 快速接入
+### 三种使用方式
+
+#### 1. 手动模式（Manual Mode）
+
+> 你主动调用，它才工作。最简单、最稳。
+
+| 平台 | 怎么用 |
+|---|---|
+| **Claude Code** | 运行 `$prompt-optimizer`，然后贴入原始内容 |
+| **Codex** | 同上 |
+| **OpenClaw** | 进入 `prompt-optimizer` 专用工作区，贴入原始内容 |
+
+安装：
+
+```bash
+bash scripts/install-local.sh claude        # Claude Code
+bash scripts/install-local.sh codex         # Codex
+bash scripts/install-local.sh openclaw --mode skill-only   # OpenClaw
+bash scripts/install-local.sh all           # 全部装
+```
+
+#### 2. 自动模式（Auto Mode）
+
+> 在普通聊天里发触发词，自动拦截处理。仅限 OpenClaw。
+
+你在任意普通 Agent 会话里发：
+
+```
+优化提示词：帮我做一份竞品分析
+```
+
+宿主会自动拦截这轮对话，转给提示词优化器处理，把结果写回原会话。下一轮对话自动回到普通模式。
+
+**4 种推荐触发写法：**
+
+```
+优化提示词：<你的原始内容>
+帮我优化：<你的原始内容>
+<你的原始内容>——优化提示词
+<你的原始内容>——帮我优化
+```
+
+安装：
+
+```bash
+bash scripts/install-local.sh openclaw --mode host-router
+```
+
+注意：
+- 默认只挂到 `main` agent，不会劫持其他 agent
+- 使用 `xhigh` 思考强度，质量优先，等待时间较长
+- 等待期间会显示 1-2 条简短进度提示
+
+#### 3. 复制粘贴模式（Copy-Paste Mode）
+
+> 导出纯文本 prompt，粘贴到任何 AI 平台。
+
+```bash
+bash scripts/print-prompt.sh
+```
+
+把输出的纯文本复制到 ChatGPT、Gemini、DeepSeek、Poe 或任何其他平台的 system prompt 里即可使用。
+
+### 手动模式 vs 自动模式怎么选？
+
+| | 手动模式 | 自动模式 |
+|---|---|---|
+| **适合** | Claude / Codex / 想主动调用才生效 | OpenClaw 聊天面板 / 飞书 / Telegram |
+| **触发方式** | 显式进入 skill 或工作区 | 在普通聊天发触发词 |
+| **配置复杂度** | 最低 | 多一层插件配置 |
+| **推荐** | 大多数人选这个 | 重度 OpenClaw 用户选这个 |
+
+### 回归测试
+
+```bash
+node scripts/test-trigger-detection.mjs      # 触发词识别测试
+node scripts/test-host-router-e2e.mjs         # 自动模式端到端测试（需本地 OpenClaw Gateway）
+```
+
+### 文件说明
+
+| 文件 | 说明 |
+|---|---|
+| `SKILL.md` | 唯一权威源文件（编辑入口） |
+| `AGENTS.md` / `CLAUDE.md` | `SKILL.md` 的别名 |
+| `scripts/install-local.sh` | 一键安装 |
+| `scripts/print-prompt.sh` | 导出纯文本 prompt |
+| `integrations/prompt-optimizer-router/` | 自动模式插件源码 |
+| `docs/examples.zh-CN.md` | 完整示例 |
+| `docs/landscape.zh-CN.md` | 同类项目对比 |
+| `docs/platforms.zh-CN.md` | 各平台接入说明 |
+| `references/model-adaptation.md` | 模型适配参考 |
+
+### 维护
+
+只改 `SKILL.md`。`AGENTS.md` 和 `CLAUDE.md` 会自动保持一致。
+
+---
+
+## 🇬🇧 English
+
+### What is it
+
+A single-purpose skill: **it only optimizes prompts — it never executes the task itself.**
+
+Every message you send is treated as raw material. The output is a structured, ready-to-paste final prompt.
+
+Good for:
+- Improving an existing prompt
+- Turning a rough idea into a professional AI instruction
+- Rewriting system prompts and agent instructions
+- Adapting prompt format for Claude, GPT, Gemini, DeepSeek, and open-source models
+
+### Example
+
+**You type:**
+
+```
+optimize prompt: write a competitive analysis report
+```
+
+**It outputs:**
+
+A complete prompt with analysis dimensions, output structure, constraints, and placeholders — ready to paste into any AI.
+
+👉 Full before → after examples: [docs/examples.zh-CN.md](docs/examples.zh-CN.md)
+
+### Three ways to use it
+
+#### 1. Manual Mode
+
+> You invoke it explicitly. Simplest and most stable.
+
+| Platform | How |
+|---|---|
+| **Claude Code** | Run `$prompt-optimizer`, then paste your content |
+| **Codex** | Same as above |
+| **OpenClaw** | Enter the `prompt-optimizer` workspace, then paste |
+
+Install:
 
 ```bash
 bash scripts/install-local.sh claude
+bash scripts/install-local.sh codex
 bash scripts/install-local.sh openclaw --mode skill-only
-bash scripts/install-local.sh openclaw --mode host-router
 bash scripts/install-local.sh all
 ```
 
-## OpenClaw 两种接法
+#### 2. Auto Mode
 
-| 选项 | 怎么装 | 适合谁 | 优点 | 代价 |
-|---|---|---|---|---|
-| `skill-only` | `bash scripts/install-local.sh openclaw --mode skill-only` | 只想主动调用 skill、不想碰宿主层的人 | 最简单、最稳、最容易理解；不会额外引入宿主级路由 | 需要显式进入提示词优化器工作区或明确调用 |
-| `host-router` | `bash scripts/install-local.sh openclaw --mode host-router` | 已经把 OpenClaw 当主聊天宿主、希望在普通会话里直接短触发的人 | 最顺手；默认只挂到 `main`，不去全局劫持所有 agent；命中后会拦截主 agent，用 `xhigh` specialist 单轮处理，并把结果注回原会话 | 多一层本地插件和宿主配置，排障面更大；它仍然不是持久会话切换 |
+> Use trigger phrases in normal chat — it intercepts automatically. OpenClaw only.
 
-选择建议：
+In any ordinary agent chat, type:
 
-- 如果你主要在 Claude / Codex / Skill 目录里用它，或者你就是想“主动调用时才生效”，选 `skill-only`
-- 如果你主要在 OpenClaw 的普通聊天面板、飞书、Telegram 里用短 trigger，不想先切工作区，选 `host-router`
-
-使用场景举例：
-
-- `skill-only`：你会明确输入 `$prompt-optimizer`，或打开专门的提示词优化器工作区，再把原始内容贴进去
-- `host-router`：你正在普通主 agent 聊天，直接发“优化提示词：做个全球股票近况的调研”，宿主会拦截这轮主 agent 输出，转给提示词优化器 specialist 处理，再把结果写回原会话
-- `host-router`：这条 specialist 会在独立的一次性临时 session 中运行，回写后立即结束，不会把后续普通对话持续锁在提示词优化器里
-- `host-router`：等待期间会先给一两条很短的状态提示，例如“正在分析原始需求”或“正在重写终版提示词”，避免长时间完全无反馈
-
-注意：
-- `skill-only` 不会往你的 OpenClaw 配置里保留宿主路由插件项
-- `host-router` 默认只作用于 `main`，如果你确实要挂到别的 agent，再自行改 OpenClaw 配置
-- 如果你想要最少配置和最容易排障的方案，优先选 `skill-only`
-- `host-router` 现在默认会压掉主 agent 的正文，并把独立临时 specialist session 的结果回写回来；它是“按轮路由”，不是进入一个持久的 prompt_optimizer 会话
-- 当前默认给 routed specialist 使用 `xhigh` 思考强度，所以质量优先，代价是等待时间会比 `skill-only` 更长
-
-## 快速调用
-
-- 推荐主触发只保留这 4 种：
-  - `优化提示词：做个全球股票近况的调研`
-  - `帮我优化：做个全球股票近况的调研`
-  - `做个全球股票近况的调研——优化提示词`
-  - `做个全球股票近况的调研——帮我优化`
-
-- Claude / Codex：安装后直接用 `$prompt-optimizer`，然后发上面 4 种写法之一；如果已经显式进入这个 skill，也可以直接贴原始内容
-- OpenClaw：
-  - `skill-only`：进入专用工作区后贴原始内容，或显式调用提示词优化器
-  - `host-router`：普通 Agent 会话里发上面 4 种写法，也会被临时切到“提示词优化器”模式
-- 其他平台：运行 `bash scripts/print-prompt.sh`，拿到可直接粘贴的纯正文版本
-
-兼容的语义触发也支持，但不建议当主入口到处传播，例如：
-
-- `调用提示词优化器：做个全球股票近况的调研`
-- `调用 Prompt Optimizer：做个全球股票近况的调研`
-
-原则是：**对外传播用 4 个主触发，宿主识别时再兼容语义调用。**
-
-## 示例
-
-详细 before → after 见 [docs/examples.zh-CN.md](docs/examples.zh-CN.md)。
-
-**一句话 → 完整提示词：**
-
-```text
-优化提示词：帮我写一封求职邮件
+```
+优化提示词：write a competitive analysis report
+帮我优化：write a competitive analysis report
 ```
 
-会输出一段包含收件人占位符、邮件结构要求、语气约束和禁止项的终版提示词，拿到就能直接复制给任意 AI 使用。
+The host intercepts the turn, routes it to the optimizer specialist, injects the result back, and resumes normal chat on the next turn.
 
-**口语化描述 → 专业指令：**
-
-```text
-帮我优化：我想让 AI 帮我每周总结工作，就是那种发给老板看的周报，别写得太官方
-```
-
-“别太官方”这种模糊感觉会被翻译成具体的风格规则、输出结构和禁止词清单。
-
-**混乱 system prompt → 分层重写：**
-
-```text
-帮我优化下面这个客服 agent 的 system prompt，太乱了——优化提示词
-（贴上你的原始 prompt）
-```
-
-会把意识流式的规则重组为：身份定义 → 行为规则 → 处理流程 → 禁止项 → 安全边界，删掉所有不改变 AI 行为的废话。
-
-## 回归测试
+Install:
 
 ```bash
-node scripts/test-trigger-detection.mjs
-node scripts/test-host-router-e2e.mjs
+bash scripts/install-local.sh openclaw --mode host-router
 ```
 
-- `test-trigger-detection.mjs`：验证推荐触发和语义触发是否仍然可识别
-- `test-host-router-e2e.mjs`：验证 `host-router` 是否仍然满足“一次 trigger，只优化一轮；回写后立即回到普通对话”
+#### 3. Copy-Paste Mode
 
-第二个脚本需要本机 OpenClaw Gateway 正在运行，且已安装 `host-router` 模式。
+> Export the raw prompt text and paste it into any AI platform.
 
-## 隐私说明
-
-- 本仓库不包含你的会话记录、缓存目录、账号凭据或本机截图
-- README 不放真实桌面截图或 GIF，避免暴露本机环境细节
-- 公开仓库只保留可安全共享的 Skill、脚本和说明文件
-
-## 平台入口
-
-- `SKILL.md`：唯一权威源文件，也是推荐编辑入口
-- `AGENTS.md`：`SKILL.md` 的别名，给读取 `AGENTS.md` 的 Agent 系统
-- `CLAUDE.md`：`SKILL.md` 的别名，给读取 `CLAUDE.md` 的工作区系统
-- `scripts/install-local.sh`：一键安装到 Claude / Codex / OpenClaw
-- `integrations/prompt-optimizer-router/`：OpenClaw `host-router` 模式用的本地触发插件源码，安装脚本会通过 `plugins.load.paths` 接入
-- `scripts/print-prompt.sh`：导出可直接粘贴给其他 AI 平台的正文版本
-- `scripts/test-trigger-detection.mjs`：最小触发回归测试
-- `agents/openai.yaml`：界面元数据
-- `references/model-adaptation.md`：不同模型的适配参考
-- `docs/platforms.zh-CN.md`：各平台接入说明
-- `docs/examples.zh-CN.md`：更完整的复杂示例
-- `docs/landscape.zh-CN.md`：同类项目对比，以及为什么本项目坚持单一职责
-
-## 维护规则
-
-- 以后只改 `SKILL.md`
-- `AGENTS.md` 和 `CLAUDE.md` 不单独维护
-- 克隆仓库到本地后，三个入口会自动保持一致
-
-## 目录结构
-
-```text
-prompt-optimizer/
-├── AGENTS.md
-├── CLAUDE.md
-├── LICENSE
-├── SKILL.md
-├── README.md
-├── README.en.md
-├── integrations/
-│   └── prompt-optimizer-router/
-│       ├── index.js
-│       ├── openclaw.plugin.json
-│       └── trigger-detection.mjs
-├── scripts/
-│   ├── install-local.sh
-│   ├── print-prompt.sh
-│   ├── test-trigger-detection.mjs
-│   └── test-host-router-e2e.mjs
-├── docs/
-│   ├── examples.zh-CN.md
-│   ├── landscape.zh-CN.md
-│   ├── platforms.zh-CN.md
-│   └── promo-copy.zh-CN.md
-├── agents/
-│   └── openai.yaml
-└── references/
-    └── model-adaptation.md
+```bash
+bash scripts/print-prompt.sh
 ```
+
+Copy the output into ChatGPT, Gemini, DeepSeek, Poe, or any other platform's system prompt field.
+
+### File reference
+
+| File | Purpose |
+|---|---|
+| `SKILL.md` | Single source of truth (edit here) |
+| `AGENTS.md` / `CLAUDE.md` | Aliases for `SKILL.md` |
+| `scripts/install-local.sh` | One-command installer |
+| `scripts/print-prompt.sh` | Export plain prompt body |
+| `integrations/prompt-optimizer-router/` | Auto Mode plugin source |
+| `docs/examples.zh-CN.md` | Full examples |
+| `docs/landscape.zh-CN.md` | Comparison with similar projects |
+| `references/model-adaptation.md` | Model adaptation notes |
+
+### Privacy
+
+This repo contains no chat logs, credentials, or local screenshots. Only shareable skill files, scripts, and docs are published.
+
+### License
+
+MIT
