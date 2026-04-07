@@ -43,14 +43,16 @@ Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready
 | 平台 | 怎么用 |
 |---|---|
 | **Claude Code（CLI + 桌面端）** | 输入 `/prompt-optimizer`，然后贴入原始内容。桌面端也可以点 `+` → 「Slash commands」选择。安装一次，CLI 和桌面端都能用。 |
+| **Codex** | 安装或更新后，先重启 Codex 或至少新开一个会话，让宿主重新发现 skills。之后最顺手的方式是输入 `$prompt-optimizer`，然后直接贴原始内容；也可以直接发“优化提示词：...”这类触发写法，让宿主按 skill 描述自动匹配。 |
 | **OpenClaw** | 进入 `prompt-optimizer` 专用工作区，贴入原始内容 |
 
-> ⚠️ Codex 没有 slash command 机制，无法直接调用 skill。Codex 用户请使用**自动模式**（通过 OpenClaw）或**复制粘贴模式**。
+> 提醒：Codex 没有 Claude 那种 slash command 入口，但它可以在**新会话**里重新发现已安装的 skill。已经打开的旧会话通常不会热更新。
 
 安装：
 
 ```bash
 bash scripts/install-local.sh claude                       # Claude Code（CLI + 桌面端）
+bash scripts/install-local.sh codex                        # Codex
 bash scripts/install-local.sh openclaw --mode skill-only   # OpenClaw
 bash scripts/install-local.sh all                          # 全部装
 ```
@@ -101,8 +103,8 @@ bash scripts/print-prompt.sh
 
 | | 手动模式 | 自动模式 | 复制粘贴模式 |
 |---|---|---|---|
-| **适合** | Claude Code 用户 | OpenClaw 聊天面板 / 飞书 / Telegram | Codex / ChatGPT / 其他平台 |
-| **触发方式** | `/prompt-optimizer` | 在普通聊天发触发词 | 手动粘贴 prompt 正文 |
+| **适合** | Claude Code / Codex 用户 | OpenClaw 聊天面板 / 飞书 / Telegram | ChatGPT / 其他平台 |
+| **触发方式** | Claude 用 `/prompt-optimizer`；Codex 用 `$prompt-optimizer` 或自然触发 | 在普通聊天发触发词 | 手动粘贴 prompt 正文 |
 | **配置复杂度** | 最低 | 多一层插件配置 | 零配置 |
 | **推荐** | Claude Code 用户首选 | 重度 OpenClaw 用户首选 | 不支持 skill 的平台 |
 
@@ -170,14 +172,16 @@ A complete prompt with analysis dimensions, output structure, constraints, and p
 | Platform | How |
 |---|---|
 | **Claude Code (CLI + Desktop)** | Type `/prompt-optimizer`, then paste your content. In the desktop app, you can also click `+` → "Slash commands". Install once, works in both CLI and desktop. |
+| **Codex** | After installing or updating the skill, restart Codex or at least start a fresh session so the host can rediscover skills. The smoothest path is to type `$prompt-optimizer` and paste the raw content directly. You can also send trigger phrases like `optimize prompt: ...` and let the host match the skill description automatically. |
 | **OpenClaw** | Enter the `prompt-optimizer` workspace, then paste |
 
-> ⚠️ Codex does not have a slash command system and cannot invoke skills directly. Codex users should use **Auto Mode** (via OpenClaw) or **Copy-Paste Mode**.
+> Note: Codex does not use Claude-style slash commands, but it can rediscover installed skills in a **fresh session**. Already-open sessions usually do not hot-reload new or updated skills.
 
 Install:
 
 ```bash
 bash scripts/install-local.sh claude
+bash scripts/install-local.sh codex
 bash scripts/install-local.sh openclaw --mode skill-only
 bash scripts/install-local.sh all
 ```

@@ -138,7 +138,15 @@ bash scripts/install-local.sh openclaw --mode host-router
 bash scripts/install-local.sh codex
 ```
 
-优先使用 `AGENTS.md`；如果平台本身支持 Skill 目录，也可以直接使用 `SKILL.md`。实际调用时也尽量用最短触发词：
+优先使用 `AGENTS.md`；如果平台本身支持 Skill 目录，也可以直接使用 `SKILL.md`。
+
+注意：
+
+- Codex 安装或更新 skill 后，不会强制给当前已打开的旧会话热更新
+- 更稳的做法是：安装完成后重启 Codex，或者至少新开一个会话，让宿主重新发现 skills
+- 如果你已经显式输入了 `$prompt-optimizer`，后面可以直接贴原始内容，不必再补 trigger
+
+实际调用时也尽量用最短触发词：
 
 ```text
 优化提示词：{{粘贴原始内容}}
