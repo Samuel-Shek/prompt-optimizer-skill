@@ -1,5 +1,13 @@
 # Prompt Optimizer ｜ 提示词优化器
 
+> **历史版本 · 2026-10-13 已归档**
+>
+> 日常提示词优化请使用维护中的 [prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer)。本仓库保留旧优化规则、文档与 OpenClaw 接入代码，不再维护。
+>
+> **兼容边界**：新版优化器不包含本仓库 `integrations/prompt-optimizer-router/` 的旧 OpenClaw 接入插件，不能当作对应插件的直接替代。两个仓库使用相同的 `prompt-optimizer` 技术标识；不要重复安装或覆盖现有技能。以下安装与自动路由说明仅为历史记录，不构成恢复旧插件或后台的指令。
+>
+> **Archived historical version.** Use the maintained prompt-optimizer for ordinary prompt editing. The legacy OpenClaw integration remains here and is not included in the replacement.
+
 把你随手写的一句话、一段粗糙需求、一份混杂的 system prompt，改写成可直接复制给任意 AI 使用的终版提示词。
 
 Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready-to-paste AI instruction.
