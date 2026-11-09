@@ -12,7 +12,7 @@
 
 这是一个 Skill（写给 AI 读的工作说明），放进 Claude Code、Codex 这类能读取技能文件的 AI 工具里使用。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
 
-有中文版和英文版两个版本，规则完全相同：仓库根目录的 `SKILL.md` 是中文版（技能名 `prompt-optimizer`），`prompt-optimizer-en/` 是英文版（技能名 `prompt-optimizer-en`）。两个版本都会用你提问的语言回答。
+有中文版和英文版两个版本：仓库根目录的 `SKILL.md` 是中文版（技能名 `prompt-optimizer`），`prompt-optimizer-en/` 是英文版（技能名 `prompt-optimizer-en`）。两个版本都会用你提问的语言回答。自 v4.0.0 起两版规则不再相同：中文版是 v4 规则（当前 v4.0.4），英文版保持 v3.5.3 规则（尚未翻译）。
 
 ## 它会做什么
 
@@ -25,11 +25,11 @@
 
 只想听意见时说“先评价，别改”，它只指出问题，不重写。
 
-在 Claude Code、Codex 这类能自己干活的 AI 工具里，当前 AI 遇到要求复杂的任务时，也可以先调用它把要求理清楚，再继续把任务做完。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
+在 Claude Code、Codex 这类能自己干活的 AI 工具里，你也可以明确要求当前 AI 先用它把复杂任务的要求理清楚，再继续把任务做完；当前 AI 不会自己调用它（仅手动使用）。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
 
 ## 看一个例子
 
-下面是 2026-10-22 一次测试的真实输出，一字未改；会议内容是虚构的。
+下面是 2026-10-22 一次测试的真实输出，一字未改；会议内容是虚构的。**注意：这是 v3.5 时期的输出，结构是“当前生效要求＋原始输入”；v4 起中文版改为“用户原话＋从属补充”，见下文“输出长什么样”。**
 
 **你说的：**
 
@@ -90,12 +90,12 @@
 1. 下载：
 
    ```bash
-   git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git
+   git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
    也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.0.4)下载压缩包。
 
-2. 把整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名技能的，先看清版本，别把自己改过的内容覆盖掉。
+2. 把下载得到的整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名技能的，先看清版本，别把自己改过的内容覆盖掉。
 
 3. 新开一个会话，让工具重新读取技能。
 
@@ -125,7 +125,14 @@
 
 ### 输出长什么样
 
-默认是一份可复制的提示词，分两部分：前面是“当前生效要求”，目标 AI 按这部分执行；后面附上你的原话，标为“原始输入（核对用）”，方便执行的 AI 回头核对原意、发现遗漏。所以终稿通常比原话长，这是有意的设计。
+默认是一份可复制的提示词，放在一个代码块里，用纯文本标签分区（v4 起）：
+
+- **用户原话（按此执行）**：你的需求逐字照抄，目标 AI 按这部分执行；
+- **材料**：你提供的材料，原样保留；
+- **补充说明**：优化器补充的建议，第一行固定写明“与‘用户原话’冲突时，以用户原话为准”；
+- **待确认**：会实质改变结果的缺口，每条附“执行时”怎么处理。
+
+没有材料、补充或待确认时省略对应区；简单任务通常只有“用户原话”和“材料”。前面可能有一行“任务”，只取你原话里的连续片段。英文版（v3.5.3）仍是“当前生效要求＋原始输入（核对用）”结构。
 
 ## 什么时候不用
 
@@ -166,7 +173,7 @@
 
 ## 与 Ego Lite、ChatGPT Pro 组合
 
-这个优化器也可以作为一套研究流程的第一步：当前 AI 先用它整理任务，再交给 ChatGPT 的 Pro 模型做研究，最后由当前 AI 核验并交付。完整组合包见 [ego-pro-research](https://github.com/Samuel-Shek/ego-pro-research)。优化器本身不依赖这套流程，也不负责操控浏览器。
+这个优化器也可以作为一套研究流程的第一步：你明确要求后，当前 AI 先用它整理任务，再交给 ChatGPT 的 Pro 模型做研究，最后由当前 AI 核验并交付。完整组合包见 [ego-pro-research](https://github.com/Samuel-Shek/ego-pro-research)。优化器本身不依赖这套流程，也不负责操控浏览器。
 
 ## 设计参考与许可
 

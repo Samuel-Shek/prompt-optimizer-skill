@@ -189,10 +189,17 @@ def result_meta(result):
 
 def cached_result(path, meta):
     # Text alone does not prove a successful run, or that it belongs to this run.
-    if meta and meta.get("exit") == 0 and meta.get("usable") and usable(path) and sha256(path) == meta.get("sha256"):
-        return {"text": path.read_text(encoding="utf-8"), "exit": 0,
-                "stderr": meta["stderr"], "seconds": meta["seconds"], "reused": True}
-    return None
+    if not (meta and meta.get("exit") == 0 and meta.get("usable")):
+        return None
+    try:
+        # Compare bytes first: a missing, unreadable or non-UTF-8 cache is stale, not fatal.
+        if sha256(path) != meta.get("sha256") or not usable(path):
+            return None
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    return {"text": text, "exit": 0,
+            "stderr": meta["stderr"], "seconds": meta["seconds"], "reused": True}
 
 
 def prepare_effect(case, prompt, mode):

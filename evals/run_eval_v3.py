@@ -10,7 +10,7 @@ Outputs go to --out. Judging is done afterwards by a person (or a reviewer that
 reads the saved files); this script only records outputs and a few mechanical
 checks. Usage:
 
-    python3 run_eval.py --out DIR [--lang en|zh] [--ids C01,C02] [--opt-model opus] [--target-model sonnet]
+    python3 run_eval_v3.py --out DIR [--lang en|zh] [--ids C01,C02] [--opt-model opus] [--target-model sonnet]
 
 --lang picks the matching skill folder, cases file and neutral system prompt
 (zh: the root SKILL.md, the default before English was added; en: prompt-optimizer-en/).

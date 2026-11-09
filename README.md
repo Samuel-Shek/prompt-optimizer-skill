@@ -10,7 +10,7 @@ Current version **v4.0.4** (Chinese edition; the English edition is still v3.5.3
 
 This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
 
-There are two editions: the English edition in `prompt-optimizer-en/` (skill name `prompt-optimizer-en`) and the Chinese edition at the repository root (skill name `prompt-optimizer`). Both reply in the language you write in. As of v4.0.0 they no longer share the same rules: the Chinese edition has the v4.0.0 rules, and the English edition keeps the v3.5.3 rules (not yet translated).
+There are two editions: the English edition in `prompt-optimizer-en/` (skill name `prompt-optimizer-en`) and the Chinese edition at the repository root (skill name `prompt-optimizer`). Both reply in the language you write in. As of v4.0.0 they no longer share the same rules: the Chinese edition has the v4 rules (currently v4.0.4), and the English edition keeps the v3.5.3 rules (not yet translated).
 
 **Manual use only (since v4.0.0).** Both editions set `allow_implicit_invocation: false`, so they run only when you explicitly ask for them. In blind evaluations on strong models, optimizing a request first gave no stable quality gain over asking the model directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -25,7 +25,7 @@ There are two editions: the English edition in `prompt-optimizer-en/` (skill nam
 
 If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
 
-In tools that do work on their own, such as Claude Code and Codex, the AI can also call it to clarify a complicated request before finishing the task. In that case the prompt is for the AI's own use, and what you get back is the finished task.
+In tools that do work on their own, such as Claude Code and Codex, you can also explicitly ask the AI to run it on a complicated request first and then carry on with the task. The AI won't call it on its own (manual use only). In that case the prompt is for the AI's own use, and what you get back is the finished task.
 
 ## Example
 
@@ -153,7 +153,7 @@ By default you get one copyable prompt in two parts. First come the "Currently E
 
 ## Tests
 
-`evals/` holds fictional test cases (`cases.en.json`: 16 English cases for the v3.5.3 English edition; `cases.json`: 26 Chinese cases) and a runner that gives the same target model your original request and the optimized prompt, then saves both results in random order for blind review:
+`evals/` holds fictional test cases (`cases.en.json`: 22 English cases for the v3.5.3 English edition; `cases.json`: 26 Chinese cases) and a runner that gives the same target model your original request and the optimized prompt, then saves both results in random order for blind review:
 
 ```bash
 python3 evals/run_eval_v3.py --lang en --out ./eval-out --opt-model opus --target-model sonnet
