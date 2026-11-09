@@ -149,7 +149,7 @@ By default you get one copyable prompt in two parts. First come the "Currently E
 - **Placeholders.** When information is missing, it leaves slots like `{{TO FILL: ...}}` and tells the AI how to handle them if you leave them empty. Small gaps (a greeting, a signature) are written generically; if a task gives no key information at all (for example a product description with no product details), the AI will stop and ask you rather than invent details.
 - **Occasional slips.** In tests a simple task sometimes still got subheadings, and the executing model did not always follow a request for full-width Chinese punctuation in long articles. Skim the "Currently Effective Requirements" and delete anything you don't want.
 - **No guarantee the target AI complies.** However clear the prompt, the AI running it can still miss or add things. Check important output yourself.
-- **Small test set.** Validation so far uses 16 fictional cases per language, mainly on Claude and GPT models. Other models and long-term use haven't been tested systematically.
+- **Small test set.** Validation so far uses a few dozen fictional cases (a 16-case baseline per language plus regression cases: 22 English, 26 Chinese in the current exam files, and 12 frozen cases in the comparison against asking directly), mainly on Claude and GPT models. Other models and long-term use haven't been tested systematically.
 
 ## Tests
 
