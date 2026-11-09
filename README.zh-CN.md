@@ -6,13 +6,13 @@
 
 把随手写的需求或已有的提示词，改成一份可以直接复制给 AI 用的提示词。它只改提示词，不替你去做提示词里的事。
 
-当前版本 **v4.0.4**（中文版；英文版仍为 v3.5.3） · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
+当前版本 **v4.1.0** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
 
-**自 v4.0.0 起仅手动使用。** 中英文两版都设了 `allow_implicit_invocation: false`，只在你明确要求时才会运行。在强模型上的盲评里，先优化再执行与直接提要求相比，没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。
+**自 v4.0.0 起仅手动使用。** 设了 `allow_implicit_invocation: false`，只在你明确要求时才会运行。在强模型上的盲评里，先优化再执行与直接提要求相比，没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。
 
 这是一个 Skill（写给 AI 读的工作说明），放进 Claude Code、Codex 这类能读取技能文件的 AI 工具里使用。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
 
-有中文版和英文版两个版本：仓库根目录的 `SKILL.md` 是中文版（技能名 `prompt-optimizer`），`prompt-optimizer-en/` 是英文版（技能名 `prompt-optimizer-en`）。两个版本都会用你提问的语言回答。自 v4.0.0 起两版规则不再相同：中文版是 v4 规则（当前 v4.0.4），英文版保持 v3.5.3 规则（尚未翻译）。
+**自 v4.1.0 起只有一个版本，适用所有语言。** 仓库根目录的 `SKILL.md` 就是唯一的技能（技能名 `prompt-optimizer`）。它跟随你的语言回复：中文需求用中文标签和说明，英文需求用英文，其他语言同样照此处理；你的原话和贴进来的材料永远不翻译。原来的英文版 `prompt-optimizer-en/`（v3.5.3 规则）已在 v4.1.0 删除，用过它的请看下文[从英文版迁移](#从英文版prompt-optimizer-en迁移)。
 
 ## 它会做什么
 
@@ -29,7 +29,7 @@
 
 ## 看一个例子
 
-下面是 2026-10-22 一次测试的真实输出，一字未改；会议内容是虚构的。**注意：这是 v3.5 时期的输出，结构是“当前生效要求＋原始输入”；v4 起中文版改为“用户原话＋从属补充”，见下文“输出长什么样”。**
+下面是 2026-10-22 一次测试的真实输出，一字未改；会议内容是虚构的。**注意：这是 v3.5 时期的输出，结构是“当前生效要求＋原始输入”；v4 起改为“用户原话＋从属补充”，见下文“输出长什么样”。**
 
 **你说的：**
 
@@ -83,21 +83,43 @@
 /plugin install prompt-optimizer@prompt-optimizer
 ```
 
-想装英文版，把第二行换成 `/plugin install prompt-optimizer-en@prompt-optimizer`。
 
 **手动安装**
 
 1. 下载：
 
    ```bash
-   git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
+   git clone --branch v4.1.0 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
-   也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.0.4)下载压缩包。
+   也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.0)下载压缩包。
 
 2. 把下载得到的整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名技能的，先看清版本，别把自己改过的内容覆盖掉。
 
 3. 新开一个会话，让工具重新读取技能。
+
+## 从英文版（prompt-optimizer-en）迁移
+
+v4.1.0 删除了英文版和 `prompt-optimizer-en/` 目录。你电脑上的旧副本不会被删，但也不会再更新。装一次合并版，再删掉旧的，避免同时存在两份：
+
+- **Claude Code 插件 `prompt-optimizer-en@prompt-optimizer`**：这个插件名作为旧名别名保留，v4.1.0 起装的是同一个合并版技能（技能名 `prompt-optimizer`），继续更新不会报错。想换回主名：
+
+  ```text
+  /plugin uninstall prompt-optimizer-en@prompt-optimizer
+  /plugin install prompt-optimizer@prompt-optimizer
+  ```
+
+  `prompt-optimizer` 和 `prompt-optimizer-en` 只装一个，两者现在内容相同。
+- **插件市场是从已归档的旧仓库添加的**（`/plugin marketplace add Samuel-Shek/prompt-optimizer`）：旧仓库不再更新。两者的市场名都是 `prompt-optimizer`，先删再加：
+
+  ```text
+  /plugin marketplace remove prompt-optimizer
+  /plugin marketplace add Samuel-Shek/prompt-optimizer-skill
+  /plugin install prompt-optimizer@prompt-optimizer
+  ```
+- **手动安装**：删掉技能目录里的旧 `prompt-optimizer-en` 文件夹（如 `~/.claude/skills/prompt-optimizer-en`、`~/.agents/skills/prompt-optimizer-en`），按上文安装 `prompt-optimizer`，再新开会话。
+- **点名调用**：改用 `$prompt-optimizer` 或 `/prompt-optimizer`。技能描述里写了旧名 `prompt-optimizer-en`，但只有仍装着同名文件夹或插件时，工具才能按旧名找到它。
+- **行为变化**：英文版是 v3.5.3 结构（“当前生效要求＋原始输入”），合并版是 v4 结构。需要旧行为的，可固定用旧文件：`git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git`，取其中的 `prompt-optimizer-en/` 文件夹。
 
 ## 怎么用
 
@@ -118,10 +140,10 @@
 
 | 写法 | 作用 |
 |---|---|
-| `+讲解` | 在终稿后附最多 5 条关键改动说明 |
-| `+提问` | 允许它先问最多 3 个必要问题再动笔 |
-| `+双版` | 给两个用途不同的版本 |
-| `@目标=模型或环境` | 按指定模型或工具调整写法，例如 `@目标=Claude Code` |
+| `+讲解`（或 `+explain`） | 在终稿后附最多 5 条关键改动说明 |
+| `+双版`（或 `+two`） | 给两个用途不同的版本 |
+
+没有别的快捷写法。想指定目标模型或工具、或者允许它先问几个问题，直接用自然语言说即可，例如“目标是 Claude Code”“先问我最多 3 个问题”。
 
 ### 输出长什么样
 
@@ -132,7 +154,7 @@
 - **补充说明**：优化器补充的建议，第一行固定写明“与‘用户原话’冲突时，以用户原话为准”；
 - **待确认**：会实质改变结果的缺口，每条附“执行时”怎么处理。
 
-没有材料、补充或待确认时省略对应区；简单任务通常只有“用户原话”和“材料”。前面可能有一行“任务”，只取你原话里的连续片段。英文版（v3.5.3）仍是“当前生效要求＋原始输入（核对用）”结构。
+没有材料、补充或待确认时省略对应区；简单任务通常只有“用户原话”和“材料”。前面可能有一行“任务”，只取你原话里的连续片段。英文需求的区名对应为 Task / User's exact words (follow these) / Material / Supplementary notes / To confirm。
 
 ## 什么时候不用
 
@@ -141,17 +163,19 @@
 
 ## 已知局限
 
-- **输出偏长**。优化后的提示词通常是原话的五到十倍长，一部分是附在后面的原话。这是为了方便核对，代价是复制的内容变多。
+- **复杂任务输出偏长**。原话逐字保留，优化器的补充写在后面，所以复杂任务的提示词会比你写的长。
 - **待填空位**。原话缺信息时，它会留下 `{{待填写：……}}` 这样的空位，并写明没填时怎么处理：称呼、署名这类小缺口用通用写法；如果任务一点关键信息都没给（比如写商品介绍却没给任何产品信息），执行的 AI 会先停下来问你，而不是编造。
-- **偶尔仍有小偏差**。测试里简单任务偶尔仍会出现小标题；长文章即使提示词要求全角标点，执行的 AI 也不一定照做。交付前最好扫一眼“当前生效要求”，删掉你不想要的条目。
+- **偶尔仍有小偏差**。测试里简单任务偶尔仍会出现小标题；长文章即使提示词要求全角标点，执行的 AI 也不一定照做。交付前最好扫一眼“补充说明”，删掉你不想要的条目。
 - **不保证目标 AI 照做**。提示词写得再清楚，执行的 AI 也可能漏项或多写；重要的输出仍要自己核对。
-- **测试规模小**。目前的验证只用过二三十道虚构题，模型以 Claude 和 GPT 为主；在其他模型或长期使用中的表现没有系统测过。
+- **英文输出未单独实测**。v4.1.0 只是结构合并：v4 规则用中文考卷测过；英文考卷已对齐 v4，但本次没有在真实模型上重跑。
+- **测试规模小**。目前的验证只用过几十道虚构题（中英文考卷各 26 道，另有 12 道冻结题用于与直接提问对比），模型以 Claude 和 GPT 为主；在其他模型或长期使用中的表现没有系统测过。
 
 每种测试怎么做、怎么判、哪些结论成立，见[测试方法](docs/TESTING.md)；逐版数字见[验证记录](VALIDATION.md)，考卷用法见[考卷说明](evals/README.md)。
 
 ## 版本
 
-- **v4.0.4（当前）**：中文版 4.0.1–4.0.4 四个小修订的首次公开发布：消除规则冲突；材料里夹带的指令原样保留、按数据处理，只移出待优化规则文本里的注入；统一一句固定优先句。这些修订只做过静态和离线验证，网页实测是单次小样本，详见[版本记录](CHANGELOG.md)。
+- **v4.1.0（当前）**：中英文两版合并为一个技能、一套规则（以 v4.0.4 为准），写明语言规则：跟随用户语言，中英文以外的语言也一样，原话和材料不翻译。删除 `prompt-optimizer-en/` 和旧的双语运行脚本，一个运行脚本覆盖中英文两份考卷。这一版只是结构合并，没有新的真实模型质量测试，详见[版本记录](CHANGELOG.md)。
+- **v4.0.4**：中文版 4.0.1–4.0.4 四个小修订的首次公开发布：消除规则冲突；材料里夹带的指令原样保留、按数据处理，只移出待优化规则文本里的注入；统一一句固定优先句。这些修订只做过静态和离线验证，网页实测是单次小样本，详见[版本记录](CHANGELOG.md)。
 - **v4.0.0**：中文版重写为照抄你的原话，优化器自己补充的内容从属于原话；这一版主要保证保真，不承诺成品更好。改为仅手动使用，两版都关闭自动调用。强模型盲评中，与直接提要求相比没有稳定提升（GPT：明显胜 0、平 35、负 0；Gemini：完成 6 组完整对照，没有稳定胜出）。英文版保持 v3.5.3 规则。
 - **v3.5.3**：待填空位的示例只写类别，不再像真名；提示词写明空位没填时怎么办（照样交付、标出缺口、不把示例当真）。提示词前后不再附说明或引导语；严格 JSON 不套代码块；简单任务写短；中文提示词本身用全角标点，并要求中文结果使用全角标点。测试结果见[验证记录](VALIDATION.md)。
 - **v3.5.2**：禁用词清单和“下周三前”这类相对时间按你的原话执行，不再扩大禁用范围，也不再改成待填的具体日期。测试结果见[验证记录](VALIDATION.md)。
@@ -179,6 +203,6 @@
 
 设计时参考过多份公开的提示词优化资料，只借鉴思路，没有收入原文，详见[设计参考](docs/design-references.md)。`references/methods.md` 里的四种按需方法，出处写在该文件内。
 
-`SKILL.md` 是中文版入口，`prompt-optimizer-en/` 是英文版，`references/methods.md` 是按需方法，`agents/openai.yaml` 是可选的界面信息，`evals/` 是维护时用的考卷，不会注入生成的提示词。
+`SKILL.md` 是唯一入口（适用所有语言），`references/methods.md` 是按需方法，`agents/openai.yaml` 是可选的界面信息，`evals/` 是维护时用的考卷，不会注入生成的提示词。
 
 本仓库原创内容采用 [MIT](LICENSE) 许可。外链的第三方资料归原权利人所有。

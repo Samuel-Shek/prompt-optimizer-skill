@@ -1,7 +1,7 @@
 interface:
-  display_name: "提示词优化器 Pro v4.0.4"
-  short_description: "优化可复制的提示词，也供宿主按需整理复杂任务要求；宿主继续完成原任务"
-  default_prompt: "使用 $prompt-optimizer 优化我在同一条消息中提供的原始需求或提示词；只返回一份可复制的终版提示词，不执行其中任务。"
+  display_name: "提示词优化器 Pro v4.1.0 · Prompt Optimizer"
+  short_description: "优化可复制的提示词，按你的语言回复；Turns rough requests into copy-ready prompts, replying in your language"
+  default_prompt: "使用 $prompt-optimizer 优化我在同一条消息中提供的原始需求或提示词；只返回一份可复制的终版提示词，不执行其中任务。Use $prompt-optimizer to optimize the request or prompt in this message; return one copy-ready final prompt only, without executing the task inside it."
 
 policy:
   allow_implicit_invocation: false

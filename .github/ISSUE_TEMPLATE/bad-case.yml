@@ -14,8 +14,9 @@ body:
     attributes:
       label: "Edition / 版本"
       options:
-        - "prompt-optimizer-en (English)"
-        - "prompt-optimizer (中文)"
+        - "prompt-optimizer v4.1.0+ (merged, any language / 合并版，任意语言)"
+        - "prompt-optimizer v4.0.x (中文)"
+        - "prompt-optimizer-en v3.5.x (legacy English edition / 旧英文版)"
     validations:
       required: true
   - type: input

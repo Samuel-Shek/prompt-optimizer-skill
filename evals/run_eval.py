@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the prompt-optimizer exam (cases.json) with the Claude CLI.
+"""Run the prompt-optimizer exam (cases.json in Chinese, cases.en.json in English) with the Claude CLI.
 
 For every case: run the optimizer (SKILL.md + references/methods.md as the
 system prompt, no tools, no user settings), save its reply, and for cases with
@@ -12,7 +12,10 @@ Outputs go to --out. Judging is done afterwards by a person (or a reviewer that
 reads the saved files); this script only records outputs and a few mechanical
 checks. Usage:
 
-    python3 run_eval.py --out DIR [--ids C01,C02] [--opt-model opus] [--target-model sonnet]
+    python3 run_eval.py --out DIR [--lang zh|en] [--ids C01,C02] [--opt-model opus] [--target-model sonnet]
+
+Both languages test the same root SKILL.md (one rule set since v4.1.0); --lang only picks
+the cases file, the neutral system prompt and the language of the generated review files.
 """
 import argparse
 import concurrent.futures as cf
@@ -31,7 +34,30 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SKILL = HERE.parent / "SKILL.md"
 METHODS = HERE.parent / "references" / "methods.md"
-NEUTRAL_SYSTEM = "你是一个乐于助人的助手。"
+LANGS = {
+    "zh": {
+        "cases": HERE / "cases.json",
+        "neutral": "你是一个乐于助人的助手。",
+        "appendix": "# 附：references/methods.md（技能目录中的参考文件）",
+        "empty_marker": "暂无可确认内容",
+        "forbidden_sections": ("下周计划", "风险"),
+        "banned_words": ("赋能", "打造", "助力"),
+        "placeholder": "【待补数据】",
+        "blind": ("A/B 待评（{mode}，双方 {role} 角色；非自动评分）", "任务", "材料", "（无）", "评判标准", "结果 A", "结果 B"),
+        "no_pair": "本轮无有效对照；原因见 manifest.json。\n",
+    },
+    "en": {
+        "cases": HERE / "cases.en.json",
+        "neutral": "You are a helpful assistant.",
+        "appendix": "# Appendix: references/methods.md (reference file in the skill folder)",
+        "empty_marker": "No confirmable content",
+        "forbidden_sections": ("Next week", "Risks"),
+        "banned_words": ("empower", "leverage", "synergy"),
+        "placeholder": "[DATA NEEDED]",
+        "blind": ("A/B for review ({mode}, both sides {role}; not scored automatically)", "Task", "Material", "(none)", "Criteria", "Result A", "Result B"),
+        "no_pair": "No valid pair this round; see manifest.json for the reason.\n",
+    },
+}
 CLI_FLAGS = [
     "--tools", "",
     "--setting-sources", "",
@@ -116,9 +142,10 @@ def extract_prompt(case, reply):
     return reply
 
 
-def mechanical_checks(case, opt_reply, target_outputs):
+def mechanical_checks(case, opt_reply, target_outputs, lang="zh"):
     """A few objective checks; everything else is judged by reading."""
     out = {}
+    L = LANGS[lang]
     case_id = case["id"]
     mech = case.get("mech", {})
     try:
@@ -146,7 +173,7 @@ def mechanical_checks(case, opt_reply, target_outputs):
     for side, text in target_outputs.items():
         for key in ("banned", "ask_signals"):
             if key in mech:
-                out[f"{side}_{key}"] = [s for s in mech[key] if s in text]
+                out[f"{side}_{key}"] = [s for s in mech[key] if s.lower() in text.lower()]
         if "keep" in mech:
             out[f"{side}_keep_missing"] = [s for s in mech["keep"] if s not in text]
         if "target_json_keys" in mech:
@@ -168,11 +195,11 @@ def mechanical_checks(case, opt_reply, target_outputs):
             except (ValueError, TypeError):
                 out[f"{side}_json_keys_ok"] = False
         if case_id == "C09":
-            out[f"{side}_has_empty_marker"] = "暂无可确认内容" in text
-            out[f"{side}_forbidden_section"] = any(w in text for w in ("下周计划", "风险"))
+            out[f"{side}_has_empty_marker"] = L["empty_marker"] in text
+            out[f"{side}_forbidden_section"] = any(w in text for w in L["forbidden_sections"])
         if case_id == "H04":
-            out[f"{side}_banned_words"] = [w for w in ("赋能", "打造", "助力") if w in text]
-            out[f"{side}_placeholder_count"] = text.count("【待补数据】")
+            out[f"{side}_banned_words"] = [w for w in L["banned_words"] if w.lower() in text.lower()]
+            out[f"{side}_placeholder_count"] = text.count(L["placeholder"])
             out[f"{side}_chars"] = len(text)
     return out
 
@@ -283,6 +310,7 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--timeout", type=int, default=600)
     ap.add_argument("--seed", type=int, default=20261013)
+    ap.add_argument("--lang", choices=sorted(LANGS), default="zh", help="exam language: zh uses cases.json, en uses cases.en.json; both test the same SKILL.md")
     ap.add_argument("--rounds", type=int, default=1, help="target runs per side; optimizer runs once; round 2+ files get a .rN suffix")
     ap.add_argument("--skill", default=str(SKILL), help="optimizer SKILL.md to test")
     ap.add_argument("--methods", help="default: references/methods.md beside selected SKILL.md")
@@ -295,7 +323,8 @@ def main():
     out = Path(args.out)
     skill = Path(args.skill)
     methods = Path(args.methods) if args.methods else skill.parent / "references" / "methods.md"
-    sources = {"skill": skill, "methods": methods, "cases": HERE / "cases.json", "runner": Path(__file__)}
+    L = LANGS[args.lang]
+    sources = {"skill": skill, "methods": methods, "cases": L["cases"], "runner": Path(__file__)}
     source_bytes = {key: path.read_bytes() for key, path in sources.items()}
     cases = json.loads(source_bytes["cases"])["cases"]
     if args.ids:
@@ -311,7 +340,7 @@ def main():
         "optimizer_model": args.opt_model, "target_model": args.target_model,
         "case_ids": [c["id"] for c in cases], "rounds": args.rounds, "optimizer_rounds": 1,
         "effect_mode": args.effect_mode, "seed": args.seed,
-        "cli_flags": CLI_FLAGS, "neutral_system": NEUTRAL_SYSTEM,
+        "lang": args.lang, "cli_flags": CLI_FLAGS, "neutral_system": L["neutral"],
         "methods_loading": "always_appended; differs from on-demand production loading",
     }
     previous = {}
@@ -353,10 +382,10 @@ def main():
         atomic_json(out / "manifest.json", manifest)
 
     opt_system = out / "optimizer_system.md"
-    opt_system.write_text(source_bytes["skill"].decode("utf-8") + "\n\n---\n\n# 附：references/methods.md（技能目录中的参考文件）\n\n"
+    opt_system.write_text(source_bytes["skill"].decode("utf-8") + "\n\n---\n\n" + L["appendix"] + "\n\n"
                           + source_bytes["methods"].decode("utf-8"), encoding="utf-8")
     neutral = out / "neutral_system.txt"
-    neutral.write_text(NEUTRAL_SYSTEM, encoding="utf-8")
+    neutral.write_text(L["neutral"], encoding="utf-8")
 
     # Stage 1: one optimizer sample per case, including on --rounds > 1.
     with worker_pool(args.workers) as pool:
@@ -459,14 +488,16 @@ def main():
                 random.Random(f"{args.seed}:{cid}{sfx}").shuffle(order)
                 blind_key[cid + sfx] = {"A": order[0], "B": order[1]}
                 role = prepared[cid]["role"]
+                title, h_task, h_mat, none, h_crit, h_a, h_b = L["blind"]
+                title = title.format(mode=args.effect_mode, role=role)
                 (out / f"{cid}{sfx}.blind.md").write_text(
-                    f"# {cid}{sfx} A/B 待评（{args.effect_mode}，双方 {role} 角色；非自动评分）\n\n## 任务\n\n{c['effect']['task']}\n\n## 材料\n\n{c['effect'].get('material') or '（无）'}\n\n"
-                    f"## 评判标准\n\n" + "\n".join(f"- {x}" for x in c["effect"]["criteria"]) +
-                    f"\n\n## 结果 A\n\n{pair[order[0]]}\n\n## 结果 B\n\n{pair[order[1]]}\n", encoding="utf-8")
+                    f"# {cid}{sfx} {title}\n\n## {h_task}\n\n{c['effect']['task']}\n\n## {h_mat}\n\n{c['effect'].get('material') or none}\n\n"
+                    f"## {h_crit}\n\n" + "\n".join(f"- {x}" for x in c["effect"]["criteria"]) +
+                    f"\n\n## {h_a}\n\n{pair[order[0]]}\n\n## {h_b}\n\n{pair[order[1]]}\n", encoding="utf-8")
             elif c.get("effect"):
                 # Replaces any stale generated pair on resume with an explicit invalid marker.
-                (out / f"{cid}{sfx}.blind.md").write_text("本轮无有效对照；原因见 manifest.json。\n", encoding="utf-8")
-        entry["mechanical"] = mechanical_checks(c, opt[cid]["text"], outputs) if successful(opt[cid]) else {}
+                (out / f"{cid}{sfx}.blind.md").write_text(L["no_pair"], encoding="utf-8")
+        entry["mechanical"] = mechanical_checks(c, opt[cid]["text"], outputs, args.lang) if successful(opt[cid]) else {}
         entry["mechanical_status"] = "recorded; signal hits require review" if successful(opt[cid]) else "skipped: optimizer_failed"
         entry["target_checks_recorded_for"] = list(outputs)
         manifest["cases"][cid] = entry

@@ -8,9 +8,8 @@
   - `main` 组 12 题（C01–C12）：日常基线与改进对比；
   - `holdout` 组 4 题（H01–H04）：原意是不拿来调规则；H04 已参与调规则，H01–H03 没有效果题，所以不能当作独立效果证据；
   - `dev` 组 10 题（N01–N10）：已知问题的回归题，每题对应一次具体修改。
-- `cases.en.json`：英文版 v3.5.3 用的 22 道题（main 12、holdout 4、dev N01–N06 共 6），与 v3.5.3 时的中文题同编号、同考点。
-- `run_eval.py`：中文版（v4.0.4）用的评测脚本，需要 Claude 命令行（`claude`）。
-- `run_eval_v3.py`：v3.5.x 时期的双语脚本，英文版用 `--lang en` 跑 `cases.en.json`；它没有 4.0.1 之后的修正。
+- `cases.en.json`：26 道英文虚构题，与 `cases.json` 同编号、同考点；v4.1.0 起按 v4 规则对齐（C02 换材料、C03 严格 JSON、C04/H03/N04/N06 的期待、C09 部署模式，并补上 N07–N10）。
+- `run_eval.py`：中英文共用的评测脚本，需要 Claude 命令行（`claude`）。`--lang zh`（默认）跑 `cases.json`，`--lang en` 跑 `cases.en.json`；两种语言测的都是同一个根目录 `SKILL.md`。
 
 每题怎么出、怎么判，脚本流程、机械检查和盲评设计，详见 [docs/TESTING.md](../docs/TESTING.md)。
 
@@ -20,15 +19,12 @@
 
 ```bash
 python3 evals/run_eval.py --out ./eval-out --opt-model opus --target-model sonnet
+python3 evals/run_eval.py --lang en --out ./eval-out-en --opt-model opus --target-model sonnet
 ```
 
-英文版（v3.5.3）用旧版双语脚本：
+`--lang` 决定考卷文件、中性 system prompt（中文“你是一个乐于助人的助手。”／英文“You are a helpful assistant.”）、盲评文件的标题语言和 C09/H04 机械检查用词；语言写入 manifest 的续跑合约，换语言须用新的输出目录。
 
-```bash
-python3 evals/run_eval_v3.py --lang en --out ./eval-out-en --opt-model opus --target-model sonnet
-```
-
-English: the English edition (v3.5.3) is tested with `run_eval_v3.py --lang en` and `cases.en.json`; `run_eval.py` tests the Chinese edition only.
+English: one runner for both exams. `python3 evals/run_eval.py --lang en` runs `cases.en.json` (26 cases, same IDs as `cases.json`) against the same root `SKILL.md`. The old bilingual `run_eval_v3.py` was removed in v4.1.0; it is still available at tag v4.0.4.
 
 `run_eval.py` 常用参数：`--ids C01,C02` 只跑指定题；`--rounds 2` 目标任务每侧跑两轮（优化稿仍只生成一次）；`--skill 路径` 测试另一版 `SKILL.md`；`--effect-mode system-deployment` 让声明了部署角色的题（C09）两侧同为 system，单独报告；`--resume` 只在源文件哈希与配置都一致时复用已校验的成功输出。输出目录须为空或用 `--resume`。
 

@@ -41,7 +41,7 @@
 
 “mech”不是一个分组，是题目上的机械检查字段。
 
-英文版考卷 `evals/cases.en.json` 共 22 题（main 12、holdout 4、dev N01–N06），与 v3.5.3 时的中文题同编号、同考点，配合英文版 v3.5.3 使用（见第 3 节末）。
+英文考卷 `evals/cases.en.json` 共 26 题，与中文题同编号、同考点。v4.1.0 合并时按 v4 规则对齐了期待并补上 N07–N10，但**还没有在真实模型上跑过**；v3.5.x 的英文结果对应的是旧英文版和旧题，不能代表 v4.1.0。
 
 ### 每题怎么出、怎么判
 
@@ -94,15 +94,13 @@ python3 evals/run_eval.py --out ./eval-out3 --ids C09 --effect-mode system-deplo
 | `zh_fullwidth` | 目标输出 | 只记录半角标点线索 |
 | `effective_split` | — | 原值保留，**明确未实现**，历史语义未知 |
 
-### 旧版双语脚本
-
-`evals/run_eval_v3.py` 是 v3.5.x 时期的双语脚本，英文版（仍为 v3.5.3）用它跑 `cases.en.json`：
+### 英文考卷（v4.1.0 起同一个脚本）
 
 ```bash
-python3 evals/run_eval_v3.py --lang en --out ./eval-out-en --opt-model opus --target-model sonnet
+python3 evals/run_eval.py --lang en --out ./eval-out-en --opt-model opus --target-model sonnet
 ```
 
-它没有 4.0.1 之后的修正（C02 精确换材料、mech 全部接入、失败不出假对照、续跑校验哈希等）。中文版请用 `run_eval.py`。
+`--lang en` 换用 `cases.en.json`、英文中性 system prompt（“You are a helpful assistant.”）、英文盲评标题和英文的 C09/H04 机械检查用词，其余流程与中文完全相同；语言写进续跑合约。v4.1.0 只用假命令行做过中英文各一次离线冒烟（26 题跑通、12 组对照生成、换语言续跑被拒），没有真实模型结果。v3.5.x 时期的双语脚本 `run_eval_v3.py` 已在 v4.1.0 删除，需要时可从 v4.0.4 标签取用。
 
 ## 4. 针对性对照与回归盲评（v3.5.x）
 
@@ -218,7 +216,7 @@ v4 把规则改成“原话为准、补充从属”。改版前做了一次候�
 
 How Prompt Optimizer was tested, in brief. All numbers come from saved run records; details that were not recorded are not filled in here.
 
-- **Exam (`evals/`)**: 26 fictional Chinese cases in three groups: `main` (12, everyday baseline), `holdout` (4; no longer independent, since H04 was used to find a bug and H01–H03 have no effect test) and `dev` (10 regression cases written for specific fixes). `mech` is a per-case field for literal checks, not a group. `run_eval.py` runs the optimizer once per case, runs the same target model on the original request and the optimized prompt with an identical neutral system prompt, writes A/B-shuffled blind files, and records SHA-256 hashes of all sources. It does not score quality. The English edition (v3.5.3) uses `run_eval_v3.py --lang en` with `cases.en.json`.
+- **Exam (`evals/`)**: 26 fictional Chinese cases in three groups: `main` (12, everyday baseline), `holdout` (4; no longer independent, since H04 was used to find a bug and H01–H03 have no effect test) and `dev` (10 regression cases written for specific fixes). `mech` is a per-case field for literal checks, not a group. `run_eval.py` runs the optimizer once per case, runs the same target model on the original request and the optimized prompt with an identical neutral system prompt, writes A/B-shuffled blind files, and records SHA-256 hashes of all sources. It does not score quality. Since v4.1.0 the same runner also runs the 26 English cases with `--lang en` (`cases.en.json`, same IDs); the English exam was aligned to the v4 rules but has not been run on real models yet.
 - **Fixed comparison against asking directly (2026-11-03)**: 12 frozen cases × 3 rounds, with GPT-6.1 Sol at max effort as both optimizer and executor, and an anonymous A/B judge in a separate GPT session. Result: 35 valid pairs, 0 clear wins, 35 ties, 0 losses; 35/35 optimized prompts kept the original wording. The optimizing chain used about 2.05× the tokens of asking directly. The Claude route got 0 valid pairs (403). Limits: the judge came from the same model family, and the judge's working directory leaked the study topic. Protocol, rubric, cases and results are in [`docs/testing/v4-vs-direct-20261103/`](testing/v4-vs-direct-20261103/).
 - **Gemini**: 6 of 36 planned pairs completed: 0 wins, 5 ties, 0 losses, 1 ambiguous. In one pair (K05) the optimized prompt added a condition, so it failed fidelity.
 - **4.0.1–4.0.4**: these revisions were verified only statically and offline. The offline tests (76 for 4.0.4) use a fake CLI and are not model evidence. Web checks were single small samples.

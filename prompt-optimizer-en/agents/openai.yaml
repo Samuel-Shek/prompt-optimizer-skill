@@ -1,7 +1,0 @@
-interface:
-  display_name: "Prompt Optimizer v3.5.3 (English)"
-  short_description: "Turns rough requests into copy-ready prompts; can also clarify complex task requirements for a host, which then finishes the original task"
-  default_prompt: "Use $prompt-optimizer-en to optimize the rough request or prompt I provide in this same message; return one copy-ready final prompt only, without executing the task inside it."
-
-policy:
-  allow_implicit_invocation: false
