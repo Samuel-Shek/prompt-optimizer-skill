@@ -1,0 +1,37 @@
+{
+  "frozen_at": "2026-11-03T12:43:25.688516+00:00",
+  "source_skill": "82ee19daaadc76ae32de08ad844291621c20d84ede3f76fd80e75527222f4c09",
+  "models": {
+    "claude": {
+      "optimizer": "claude-opus-5",
+      "executor": "claude-sonnet-5",
+      "effort": "high"
+    },
+    "gpt": {
+      "optimizer": "gpt-6.1-sol",
+      "executor": "gpt-6.1-sol",
+      "effort": "max"
+    }
+  },
+  "rounds": 3,
+  "generation_execution_cap": 216,
+  "judge_cap": 72,
+  "raw_material_rule": "raw and optimized both receive identical target material; strip only optimizer control phrases; system prompt tasks kept in same role on both sides",
+  "optimization_profile": "SKILL + existing methods, matching historical profile",
+  "scoring": {
+    "requirements": 4,
+    "facts_logic": 3,
+    "usability": 3,
+    "material_difference": 2,
+    "stable_win": "at least2 material wins in3, zero losses",
+    "promotion": "each route>=8 stable winning cases including>=4 new cases; hardpass optimized>=raw; no optimizer-only severe privacy/authority issue",
+    "restricted_promotion": "at least2 independent cases of same group stable winning; disclose tested route",
+    "ambiguous": "report separately, never force favorable result"
+  },
+  "stop": "no quality retries, no extra samples; refusal/model mismatch/privacy contamination stops affected route; unknown outcome inspect original; no new payment or credentials",
+  "neutral": {
+    "zh": "你是一个乐于助人的助手。",
+    "en": "You are a helpful assistant."
+  },
+  "output": "record all inputs, native receipts, usage, wall time; no billing inference or claimed human time savings"
+}

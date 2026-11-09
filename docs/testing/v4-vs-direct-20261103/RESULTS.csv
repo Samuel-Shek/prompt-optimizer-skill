@@ -1,0 +1,13 @@
+case,group,language,new,completed_pairs,wins,ties,losses,ambiguous_or_missing,raw_hard_passes,optimized_final_hard_passes,optimized_pipeline_passes,fidelity_failures,stable_win,possible_stable_best_case
+C01,沟通,zh,False,2,0,2,0,1,2,2,2,0,False,False
+C09,周报助手,zh,False,3,0,3,0,0,3,3,3,0,False,False
+C02,结构提取,en,False,3,0,3,0,0,3,3,3,0,False,False
+B,零散多轮,zh,False,3,0,3,0,0,3,3,3,0,False,False
+D,事实约束写作,en,False,3,0,3,0,0,3,3,3,0,False,False
+N05,结构提取,zh,False,3,0,3,0,0,0,0,0,0,False,False
+K01,沟通,en,True,3,0,3,0,0,3,3,3,0,False,False
+K02,零散多轮,zh,True,3,0,3,0,0,3,3,3,0,False,False
+K03,周报助手,zh,True,3,0,3,0,0,3,3,3,0,False,False
+K04,事实约束写作,zh,True,3,0,3,0,0,3,3,3,0,False,False
+K05,决策规划,en,True,3,0,3,0,0,0,1,1,0,False,False
+K06,决策规划,zh,True,3,0,3,0,0,3,3,3,0,False,False

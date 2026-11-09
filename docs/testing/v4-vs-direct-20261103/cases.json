@@ -1,0 +1,193 @@
+[
+ {
+  "id": "C01",
+  "lang": "zh",
+  "group": "沟通",
+  "new": false,
+  "raw": "把我下面的会议要点整理成一条发给团队的微信消息，200 字以内，语气客气但直接。\n\n会议要点：周四前交初稿；小王负责数据部分；预算还没批，先别买工具。",
+  "optimizer_input": "帮我优化一下这个提示词：把我下面的会议要点整理成一条发给团队的微信消息，200 字以内，语气客气但直接。\n会议要点：周四前交初稿；小王负责数据部分；预算还没批，先别买工具。",
+  "criteria": [
+   "不超过 200 字",
+   "三条要点都在",
+   "没有说预算已批，也没有新增事项",
+   "读起来像能直接发出去的微信消息"
+  ],
+  "material": "会议要点：周四前交初稿；小王负责数据部分；预算还没批，先别买工具。",
+  "strict": false
+ },
+ {
+  "id": "C09",
+  "lang": "zh",
+  "group": "周报助手",
+  "new": false,
+  "raw": "每周五我会贴本周工作记录，它帮我写周报。周报只能有三段：①做了哪些事情；②修改了哪些文件；③哪些项目有进展。每条一行，可以用少量 emoji。没有证据的内容不要写；某段确实没内容就只写“暂无可确认内容”。不要加“下周计划”“风险”之类的栏目。\n\n本周工作记录：\n- 周一和供应商开会，确认样品下周到\n- 周二整理了展会照片\n- 周三跟进华东区报价，客户说再考虑\n- 周四写了产品介绍初稿（还没定稿）\n- 周五参加部门例会",
+  "optimizer_input": "把下面的要求优化成一个长期使用的周报助手 System Prompt：每周五我会贴本周工作记录，它帮我写周报。周报只能有三段：①做了哪些事情；②修改了哪些文件；③哪些项目有进展。每条一行，可以用少量 emoji。没有证据的内容不要写；某段确实没内容就只写“暂无可确认内容”。不要加“下周计划”“风险”之类的栏目。",
+  "criteria": [
+   "只有三段，名称与要求一致，没有额外栏目",
+   "第②段：写“暂无可确认内容”，或只列记录里明确写到的文档（产品介绍初稿）；不得列入记录没提到的文件（如把“整理照片”算成改文件）",
+   "没有编造进展（如把“客户再考虑”写成成交，把初稿写成定稿）",
+   "每条一行，emoji 不过量"
+  ],
+  "material": "本周工作记录：\n- 周一和供应商开会，确认样品下周到\n- 周二整理了展会照片\n- 周三跟进华东区报价，客户说再考虑\n- 周四写了产品介绍初稿（还没定稿）\n- 周五参加部门例会",
+  "strict": false
+ },
+ {
+  "id": "C02",
+  "lang": "en",
+  "group": "结构提取",
+  "new": false,
+  "raw": "extract name, company, need, and budget from a customer email and output JSON with the field names name, company, need, budget. Use null for anything the email doesn't contain; don't guess.\nSample email:\n\"Hi, this is Jordan Lee from Northwind Packaging. We'd like to learn about your battery replacement program for small forklifts, roughly 20 units. Could you send us some material first?\"\n\nNow process this email:\nEmail: \"Hello, we're Bluewave Cold Chain Logistics. We'd like to switch the 12 electric pallet jacks in our warehouse to lithium batteries, with a budget under $11,000. If possible, please send a quote this month. — Purchasing Dept.\"",
+  "optimizer_input": "Optimize this prompt so it works reliably: extract name, company, need, and budget from a customer email and output JSON with the field names name, company, need, budget. Use null for anything the email doesn't contain; don't guess.\nSample email:\n\"Hi, this is Jordan Lee from Northwind Packaging. We'd like to learn about your battery replacement program for small forklifts, roughly 20 units. Could you send us some material first?\"",
+  "criteria": [
+   "One parseable JSON object with only name, company, need, budget",
+   "Use the final email as extraction target, not the sample email; name=null, company=Bluewave Cold Chain Logistics",
+   "budget remains under $11,000 and need preserves 12 electric pallet jacks; do not broaden budget to spending",
+   "No invented name, fact, enum or extra schema restrictions"
+  ],
+  "material": "Now process this email:\nEmail: \"Hello, we're Bluewave Cold Chain Logistics. We'd like to switch the 12 electric pallet jacks in our warehouse to lithium batteries, with a budget under $11,000. If possible, please send a quote this month. — Purchasing Dept.\"",
+  "strict": false
+ },
+ {
+  "id": "B",
+  "lang": "zh",
+  "group": "零散多轮",
+  "new": false,
+  "raw": "把这些零散材料整理成发给志愿者的中文简报，读者第一次参与。资料全是虚构的。别查外部信息。先说需要做什么，再交代安排，最后说待定事项。长度300—450个汉字。\n零散笔记：旧草案地点写南馆，后来已改为北馆一层。不是旧地点。活动是图书包封面体验，不做修书。最初拟定13:30开始，这项取消；最终周日14:10开始，15:40结束。人数上限18人，当前确认11人，余下7个名额，报名尚未截止。无需报名链接，不要编造。\n材料组13:50到场摆好纸套、尺子和铅笔；引导组14:00到入口指路，两组均由现有志愿者负责。参与者自己带一本平装书，现场只演示纸套折法，不用胶水。\n遗漏了两条：报名截止到周五17:00；活动不收费，不能写成捐款活动。桌数还没确定，负责确认桌数的人也未确定。不要替我们分配负责人。\n交付恰好三个自然段，不能加标题或列表。每段有明确主题；待定的两件事必须明确保留。不要引入新的步骤或事实。",
+  "optimizer_input": "请把下面的需求优化成可直接交给 AI 执行的提示词：\n把这些零散材料整理成发给志愿者的中文简报，读者第一次参与。资料全是虚构的。别查外部信息。先说需要做什么，再交代安排，最后说待定事项。长度300—450个汉字。\n零散笔记：旧草案地点写南馆，后来已改为北馆一层。不是旧地点。活动是图书包封面体验，不做修书。最初拟定13:30开始，这项取消；最终周日14:10开始，15:40结束。人数上限18人，当前确认11人，余下7个名额，报名尚未截止。无需报名链接，不要编造。\n材料组13:50到场摆好纸套、尺子和铅笔；引导组14:00到入口指路，两组均由现有志愿者负责。参与者自己带一本平装书，现场只演示纸套折法，不用胶水。\n遗漏了两条：报名截止到周五17:00；活动不收费，不能写成捐款活动。桌数还没确定，负责确认桌数的人也未确定。不要替我们分配负责人。\n交付恰好三个自然段，不能加标题或列表。每段有明确主题；待定的两件事必须明确保留。不要引入新的步骤或事实。",
+  "criteria": [
+   "恰好三个自然段，无标题列表，300—450个汉字（只计汉字）",
+   "最终北馆一层、周日14:10—15:40；报名周五17:00截止；容量18、确认11、余7",
+   "保留两组抵达时间职责、参与者自带平装书、不用胶水、免费且非捐款",
+   "桌数及确认人均待定；不指派、不新增事实流程；旧安排可以作为已取消安排提及，不强加禁提规则"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "D",
+  "lang": "en",
+  "group": "事实约束写作",
+  "new": false,
+  "raw": "Write a 180–230 word English handout explaining a fictional notebook naming convention to beginners. Use exactly four short paragraphs and no title, headings, bullets, code block, or signature. Paragraph 1 explains the purpose: files stay easy to sort and locate. Paragraph 2 explains that “draft” means unfinished and “final” means reviewed, not approved for publication. Paragraph 3 gives the two examples below as exact inline text, once each: note-v2.4.txt and draft_2026-11-03.txt. Paragraph 4 gives this exact warning once: “Renaming a file does not change its contents.”\nPreserve the quotes as curly quotes when quoting the warning. Do not claim this convention is an industry standard. Do not add backup, upload, sharing, deletion, or automation steps. Do not invent a folder path or a software requirement. The handout should explain the distinction between a filename and file contents without providing commands or asking the reader questions.",
+  "optimizer_input": "Optimize this into a prompt I can give directly to an AI:\nWrite a 180–230 word English handout explaining a fictional notebook naming convention to beginners. Use exactly four short paragraphs and no title, headings, bullets, code block, or signature. Paragraph 1 explains the purpose: files stay easy to sort and locate. Paragraph 2 explains that “draft” means unfinished and “final” means reviewed, not approved for publication. Paragraph 3 gives the two examples below as exact inline text, once each: note-v2.4.txt and draft_2026-11-03.txt. Paragraph 4 gives this exact warning once: “Renaming a file does not change its contents.”\nPreserve the quotes as curly quotes when quoting the warning. Do not claim this convention is an industry standard. Do not add backup, upload, sharing, deletion, or automation steps. Do not invent a folder path or a software requirement. The handout should explain the distinction between a filename and file contents without providing commands or asking the reader questions.",
+  "criteria": [
+   "180–230 English whitespace-separated words, exactly four paragraphs and no title/list/code/signature",
+   "Each paragraph serves its specified purpose; draft unfinished; final reviewed and explicitly not publication approval",
+   "note-v2.4.txt and draft_2026-11-03.txt appear exactly once each, inline in paragraph 3",
+   "Paragraph 4 contains exactly once: “Renaming a file does not change its contents.” with curly quotes",
+   "No invented industry standard, path, software requirement or backup/upload/sharing/deletion/automation steps; no questions"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "N05",
+  "lang": "zh",
+  "group": "结构提取",
+  "new": false,
+  "raw": "从用户反馈里提取产品名、问题类型、紧急程度，输出 JSON，字段名 product、issue_type、urgency，没有的填 null。\n\n现在请处理以下反馈：\n反馈：“你们的扫地机器人 X3 昨天开始一直报错，家里老人等着用，麻烦尽快处理。”",
+  "optimizer_input": "把下面的提示词优化好，最终只输出一个 JSON 对象，唯一字段 prompt，不要任何其他文字。待优化内容：从用户反馈里提取产品名、问题类型、紧急程度，输出 JSON，字段名 product、issue_type、urgency，没有的填 null。",
+  "criteria": [
+   "可直接解析的JSON对象，只有product、issue_type、urgency三个字段，无代码块说明",
+   "产品为扫地机器人X3，问题为一直报错；紧急程度忠于原文请求尽快处理，不新增分类取值规则",
+   "不编造未提供事实；没有的填null"
+  ],
+  "material": "现在请处理以下反馈：\n反馈：“你们的扫地机器人 X3 昨天开始一直报错，家里老人等着用，麻烦尽快处理。”",
+  "strict": true
+ },
+ {
+  "id": "K01",
+  "lang": "en",
+  "group": "沟通",
+  "new": true,
+  "raw": "Write a polite but direct Slack message to the demo team, no more than 95 words. Use the final updates in these fictional notes. Initial draft: Tuesday, room Cedar, 09:00. Update: the demo moves to Thursday, room Birch, 10:20–11:00; the Tuesday slot is cancelled. Priya handles the slides, but nobody has been assigned to book the room. The room booking is still pending. Ask colleagues to send corrections by Wednesday noon. The client has not confirmed attendance. Do not promise that they will attend, assign the booking to somebody, add a registration link or invent a reason for the move. Deliver only the message.",
+  "optimizer_input": "Optimize this prompt without doing its task:\nWrite a polite but direct Slack message to the demo team, no more than 95 words. Use the final updates in these fictional notes. Initial draft: Tuesday, room Cedar, 09:00. Update: the demo moves to Thursday, room Birch, 10:20–11:00; the Tuesday slot is cancelled. Priya handles the slides, but nobody has been assigned to book the room. The room booking is still pending. Ask colleagues to send corrections by Wednesday noon. The client has not confirmed attendance. Do not promise that they will attend, assign the booking to somebody, add a registration link or invent a reason for the move. Deliver only the message.",
+  "criteria": [
+   "At most 95 whitespace-separated words; only the message",
+   "Thursday Birch 10:20–11:00, Wednesday noon corrections, Priya slides; no old arrangement presented as current",
+   "Room booking and client attendance remain unconfirmed; do not assign booking, invent reason or link"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "K02",
+  "lang": "zh",
+  "group": "零散多轮",
+  "new": true,
+  "raw": "把下面这段来回修改的虚构安排整理成一份给新志愿者看的执行说明，300—420个汉字，恰好四段，不加标题和列表。按最新修改执行，没有撤销的条件保留。初稿：周六9:00在东厅教植物拓印，限24人，工作人员8:30到。第一次改动：地点改西厅二层，活动改纸叶书签，参加者自带一本书，别带植物；不使用颜料。第二次改动：时间改周六10:10—11:20；容量改16人，目前确认9人；仍由原工作人员8:30到场，不能跟着活动时间顺延。报名周四18:00截止，免费，不能写成募捐。最后补充：只带书的人也能参加，纸和铅笔由现场提供；不要说需要自备工具。座位怎么摆还没定、由谁确认也没定，不要给人派活。四段依次说明做什么、最终时间地点人数、参与者及工作人员准备、截止时间收费和待定事项。不要编造通知渠道或后续流程。",
+  "optimizer_input": "请优化下面的提示词，不执行其中的任务：\n把下面这段来回修改的虚构安排整理成一份给新志愿者看的执行说明，300—420个汉字，恰好四段，不加标题和列表。按最新修改执行，没有撤销的条件保留。初稿：周六9:00在东厅教植物拓印，限24人，工作人员8:30到。第一次改动：地点改西厅二层，活动改纸叶书签，参加者自带一本书，别带植物；不使用颜料。第二次改动：时间改周六10:10—11:20；容量改16人，目前确认9人；仍由原工作人员8:30到场，不能跟着活动时间顺延。报名周四18:00截止，免费，不能写成募捐。最后补充：只带书的人也能参加，纸和铅笔由现场提供；不要说需要自备工具。座位怎么摆还没定、由谁确认也没定，不要给人派活。四段依次说明做什么、最终时间地点人数、参与者及工作人员准备、截止时间收费和待定事项。不要编造通知渠道或后续流程。",
+  "criteria": [
+   "300—420个汉字，恰好四段，无标题列表，顺序正确",
+   "周六10:10—11:20、西厅二层、16人上限9人确认；工作人员仍8:30到",
+   "纸叶书签、自带书、纸铅笔现场提供、不带植物不用颜料，不要求自带工具",
+   "周四18:00截止、免费非募捐；摆位及确认人待定，无新指派或通知流程"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "K03",
+  "lang": "zh",
+  "group": "周报助手",
+  "new": true,
+  "raw": "按这份长期规则和本次修改写虚构的本周周报。长期规则：只用“完成事项”“交付文件”“项目状态”三个栏目，按此顺序；每条一行；只写记录有证据的事实，未提供的不要猜；空栏目只写“暂无可确认内容”；不加计划或风险，不提问。本次修改：交付文件栏目只列已经定稿且发给团队的文件，初稿不列；这个改动只影响交付文件，不要删其他栏里的真实初稿工作。记录：周一完成六张展会照片筛选；周二写了FAQ初稿，仍等产品组核对，未发团队；周三给测试项目补了两个用例，尚未跑测试；周四将已定稿的演示提纲发给团队；周五讨论试点，主持人只说下周再确认，未批准启动。请直接交付三栏正文，无日期标题或其他说明。",
+  "optimizer_input": "请优化下面的提示词，不执行其中的任务：\n按这份长期规则和本次修改写虚构的本周周报。长期规则：只用“完成事项”“交付文件”“项目状态”三个栏目，按此顺序；每条一行；只写记录有证据的事实，未提供的不要猜；空栏目只写“暂无可确认内容”；不加计划或风险，不提问。本次修改：交付文件栏目只列已经定稿且发给团队的文件，初稿不列；这个改动只影响交付文件，不要删其他栏里的真实初稿工作。记录：周一完成六张展会照片筛选；周二写了FAQ初稿，仍等产品组核对，未发团队；周三给测试项目补了两个用例，尚未跑测试；周四将已定稿的演示提纲发给团队；周五讨论试点，主持人只说下周再确认，未批准启动。请直接交付三栏正文，无日期标题或其他说明。",
+  "criteria": [
+   "三个栏目名称顺序正确，每条一行，无额外标题说明、问题、计划风险",
+   "完成事项可写照片筛选、FAQ初稿、补用例等有据工作",
+   "交付文件只列定稿且已发团队的演示提纲，不列FAQ初稿或未提供文件",
+   "FAQ仍待核、用例未运行、试点未批准，不把讨论写成进展完成，不编日期"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "K04",
+  "lang": "zh",
+  "group": "事实约束写作",
+  "new": true,
+  "raw": "只依据以下虚构材料，给普通读者写一篇正文500—650个汉字的介绍，讲河湾社区的借物柜试点。标题必须是“借东西之前，先看这几件事”，然后恰好四段正文，不加小标题。材料：试点计划下个月开放，目前尚未开放；范围是两栋楼，不是全社区；提供手动螺丝刀和卷尺，没有电钻；每次借用不超过48小时；是否收押金还在讨论；柜体到货但验收未完成；志愿者名单未定，没有已获认证的说法；今年未统计借用次数，不得编使用率、节约金额或引用研究。正文依次讲用途、已知借还安排、尚未落实的问题、读者应该等什么信息；最后一段只提示等待社区正式开放通知，不新增报名、扫码、付费或自荐当志愿者的动作。可以解释工具用途，但不要把解释写成试点已经完成的事实。",
+  "optimizer_input": "请优化下面的提示词，不执行其中的任务：\n只依据以下虚构材料，给普通读者写一篇正文500—650个汉字的介绍，讲河湾社区的借物柜试点。标题必须是“借东西之前，先看这几件事”，然后恰好四段正文，不加小标题。材料：试点计划下个月开放，目前尚未开放；范围是两栋楼，不是全社区；提供手动螺丝刀和卷尺，没有电钻；每次借用不超过48小时；是否收押金还在讨论；柜体到货但验收未完成；志愿者名单未定，没有已获认证的说法；今年未统计借用次数，不得编使用率、节约金额或引用研究。正文依次讲用途、已知借还安排、尚未落实的问题、读者应该等什么信息；最后一段只提示等待社区正式开放通知，不新增报名、扫码、付费或自荐当志愿者的动作。可以解释工具用途，但不要把解释写成试点已经完成的事实。",
+  "criteria": [
+   "标题完全一致，正文恰好四段，正文500—650个汉字",
+   "计划下个月开放、未开放、仅两栋楼，柜体到货验收未完",
+   "只提供手动螺丝刀卷尺，无电钻；每次不超过48小时；押金讨论、名单未定",
+   "无虚构认证、次数、比例、节省或研究；最后只等开放通知，无新增行动"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "K05",
+  "lang": "en",
+  "group": "决策规划",
+  "new": true,
+  "raw": "Help me decide what evidence to gather before replacing a fictional team's note-taking tool; do not choose the tool for me. Offline editing and export to plain text are mandatory. Tool A is already in use and may duplicate notes on import, but data loss has not been established. Tool B claims offline support in its brochure; we have not verified it. I can spend at most 90 minutes on a reversible comparison using 12 invented notes, including two with accented characters and two with identical titles. Do not use real notes, buy anything, create accounts, upload data, contact vendors or actually run the trial. Give the strongest case for retaining A and for switching to B, a timed test plan that stays within 90 minutes, observable outcomes that would change the decision, and a stopping condition. Distinguish vendor claims, known facts and unknowns. Keep it under 450 words, and do not invent numerical reliability rates.",
+  "optimizer_input": "Optimize this prompt without doing its task:\nHelp me decide what evidence to gather before replacing a fictional team's note-taking tool; do not choose the tool for me. Offline editing and export to plain text are mandatory. Tool A is already in use and may duplicate notes on import, but data loss has not been established. Tool B claims offline support in its brochure; we have not verified it. I can spend at most 90 minutes on a reversible comparison using 12 invented notes, including two with accented characters and two with identical titles. Do not use real notes, buy anything, create accounts, upload data, contact vendors or actually run the trial. Give the strongest case for retaining A and for switching to B, a timed test plan that stays within 90 minutes, observable outcomes that would change the decision, and a stopping condition. Distinguish vendor claims, known facts and unknowns. Keep it under 450 words, and do not invent numerical reliability rates.",
+  "criteria": [
+   "Under 450 words; both options fairly represented without choosing",
+   "Offline and plain-text export remain mandatory; possible duplicates are not established data loss; B offline claim unverified",
+   "Reversible test uses exactly supplied 12 invented notes incl accents and duplicate titles, within90minutes",
+   "Concrete observable decision-changing outcomes and stopping condition; no purchases/accounts/uploads/contacts/execution or invented reliability rates"
+  ],
+  "material": "",
+  "strict": false
+ },
+ {
+  "id": "K06",
+  "lang": "zh",
+  "group": "决策规划",
+  "new": true,
+  "raw": "我准备在两个虚构的会议室方案中选一个，先帮我做比较和验证计划，别替我选，也别实际预约。明确条件：必须坐下12个人、可用有线投屏、总价不超过800元。甲房报价720元，标称12座，但照片只看到10把椅子；有线投屏接口是否能用未核实。乙房报价760元，标称14座，提供HDMI；是否另收80元设备费尚未核实。两房是否空闲也未核实。我只有40分钟能做现场核查，不付订金、不提供个人联系方式、不拍摄其他人。请用同一口径列出双方最强理由、哪些是已知或未知、40分钟内可执行且可撤回的核查顺序，以及什么结果会让某方案不合格。不要把标称当实测，不算主观加权总分，不新增采购要求。输出一张比较表和一段核查计划，300—450个汉字；无需开场白和结论选项。",
+  "optimizer_input": "请优化下面的提示词，不执行其中的任务：\n我准备在两个虚构的会议室方案中选一个，先帮我做比较和验证计划，别替我选，也别实际预约。明确条件：必须坐下12个人、可用有线投屏、总价不超过800元。甲房报价720元，标称12座，但照片只看到10把椅子；有线投屏接口是否能用未核实。乙房报价760元，标称14座，提供HDMI；是否另收80元设备费尚未核实。两房是否空闲也未核实。我只有40分钟能做现场核查，不付订金、不提供个人联系方式、不拍摄其他人。请用同一口径列出双方最强理由、哪些是已知或未知、40分钟内可执行且可撤回的核查顺序，以及什么结果会让某方案不合格。不要把标称当实测，不算主观加权总分，不新增采购要求。输出一张比较表和一段核查计划，300—450个汉字；无需开场白和结论选项。",
+  "criteria": [
+   "仅一张比较表和一段核查计划，300—450个汉字",
+   "同一口径比较且不代选；12人、有线投屏、总价≤800三个硬条件完整",
+   "甲720标称12照片10非实测；乙760标称14有HDMI，80费未知，若另收则840超预算；空闲均未知",
+   "40分钟内可撤回核查，有具体淘汰条件，无预约订金联系方式、拍他人、主观加权或新采购"
+  ],
+  "material": "",
+  "strict": false
+ }
+]

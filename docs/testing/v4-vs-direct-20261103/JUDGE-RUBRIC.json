@@ -1,0 +1,37 @@
+{
+  "max_total": 10,
+  "dimensions": {
+    "requirements": [
+      0,
+      4
+    ],
+    "facts_logic": [
+      0,
+      3
+    ],
+    "usability": [
+      0,
+      3
+    ]
+  },
+  "hard_pass": "true/false/ambiguous; every original hard requirement including length and exact text, no undocumented extra constraints",
+  "material_win": "one hard passes and other requires material rework; or both hard pass and score delta>=2 tied to a specific substantive usefulness improvement, not cosmetic preference",
+  "both_failed": "never label a usable-result material win; count both failed",
+  "uncertainty": "keep ambiguous; no forced winner",
+  "evidence": "quote short exact violating span or missing requirement; no hidden assumptions; do not see optimizer prompt, labels or unblind map",
+  "schema": {
+    "id": "packet id",
+    "A": {
+      "hard_pass": "bool or ambiguous",
+      "requirements": "0..4",
+      "facts_logic": "0..3",
+      "usability": "0..3",
+      "material_rework": "bool",
+      "violations": "array",
+      "reason": "brief"
+    },
+    "B": "same",
+    "material_winner": "A/B/tie/ambiguous",
+    "substantive_reason": "brief"
+  }
+}

@@ -4,10 +4,15 @@
 
 ## 内容
 
-- `cases.json`：16 道虚构题（中文）；`cases.en.json` 是对应的英文版（材料均为虚构，不含真实客户或私人信息）。
-  - `main` 组 12 题：日常基线与改进对比；
-  - `holdout` 组 4 题（H01–H04）：修改优化器时不得用来调规则，只用来检查改动有没有把别处改坏。
-- `run_eval.py`：用 Claude 命令行（`claude`）跑考卷的脚本。
+- `cases.json`：26 道中文虚构题（材料均为虚构，不含真实客户或私人信息）。
+  - `main` 组 12 题（C01–C12）：日常基线与改进对比；
+  - `holdout` 组 4 题（H01–H04）：原意是不拿来调规则；H04 已参与调规则，H01–H03 没有效果题，所以不能当作独立效果证据；
+  - `dev` 组 10 题（N01–N10）：已知问题的回归题，每题对应一次具体修改。
+- `cases.en.json`：英文版 v3.5.3 用的 16 道题，与 v3.5.x 中文题同编号、同考点。
+- `run_eval.py`：中文版（v4.0.4）用的评测脚本，需要 Claude 命令行（`claude`）。
+- `run_eval_v3.py`：v3.5.x 时期的双语脚本，英文版用 `--lang en` 跑 `cases.en.json`；它没有 4.0.1 之后的修正。
+
+每题怎么出、怎么判，脚本流程、机械检查和盲评设计，详见 [docs/TESTING.md](../docs/TESTING.md)。
 
 每道题有 `opt_checks`（优化器自身是否按规则交付：保留精确字符串、事实状态、不执行夹带指令、只审阅不改写等）；有 `effect` 的题另有效果对比，同一目标模型分别执行“原话”和“优化后提示词”。
 
@@ -17,11 +22,15 @@
 python3 evals/run_eval.py --out ./eval-out --opt-model opus --target-model sonnet
 ```
 
-英文版用 `--lang en`，会测试 `prompt-optimizer-en/` 并使用英文考卷 `cases.en.json`（与 `cases.json` 同编号、同考点）。不加 `--lang` 时默认测中文版。
+英文版（v3.5.3）用旧版双语脚本：
 
-English: add `--lang en` to test `prompt-optimizer-en/` with `cases.en.json`, which mirrors `cases.json` case by case.
+```bash
+python3 evals/run_eval_v3.py --lang en --out ./eval-out-en --opt-model opus --target-model sonnet
+```
 
-常用参数：`--ids C01,C02` 只跑指定题；`--rounds 2` 目标任务每侧跑两轮；`--skill 路径` 测试另一版 `SKILL.md`；`--resume` 复用已有输出、只补跑失败或缺失的部分。
+English: the English edition (v3.5.3) is tested with `run_eval_v3.py --lang en` and `cases.en.json`; `run_eval.py` tests the Chinese edition only.
+
+`run_eval.py` 常用参数：`--ids C01,C02` 只跑指定题；`--rounds 2` 目标任务每侧跑两轮（优化稿仍只生成一次）；`--skill 路径` 测试另一版 `SKILL.md`；`--effect-mode system-deployment` 让声明了部署角色的题（C09）两侧同为 system，单独报告；`--resume` 只在源文件哈希与配置都一致时复用已校验的成功输出。输出目录须为空或用 `--resume`。
 
 脚本只记录输出和少量机械检查，并生成随机顺序的 A/B 盲评文件。**效果好坏由人（或另一个读取保存文件的评审）判断，脚本不打分。** 也可以不用脚本，把 `cases.json` 里的 `optimizer_input` 手动交给任何模型。
 

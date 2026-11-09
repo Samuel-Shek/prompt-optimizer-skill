@@ -9,7 +9,7 @@
     {
       "name": "prompt-optimizer",
       "description": "提示词优化器（中文版）：把随手写的需求或已有提示词，改成一份可以直接复制给 AI 用的提示词。",
-      "version": "4.0.0",
+      "version": "4.0.4",
       "category": "productivity",
       "source": "./",
       "strict": false,

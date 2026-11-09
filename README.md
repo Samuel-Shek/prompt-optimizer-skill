@@ -6,7 +6,7 @@
 
 Turn a rough request, or a prompt you already have, into one prompt you can paste straight into an AI. It only rewrites the prompt. It doesn't do the task inside it for you.
 
-Current version **v4.0.0** (Chinese edition; the English edition is still v3.5.3) · MIT license · [Changelog](CHANGELOG.md) · [Validation (Chinese)](VALIDATION.md)
+Current version **v4.0.4** (Chinese edition; the English edition is still v3.5.3) · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
 
 This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
 
@@ -99,10 +99,10 @@ For the Chinese edition, install `prompt-optimizer@prompt-optimizer` instead.
 1. Download:
 
    ```bash
-   git clone --branch v4.0.0 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git
+   git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git
    ```
 
-   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.0.0).
+   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.0.4).
 
 2. Copy the `prompt-optimizer-en` folder into your AI tool's skills folder, keeping its `references/` and `agents/` subfolders. Common locations: `~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex. Check your tool's current docs.
 
@@ -153,13 +153,13 @@ By default you get one copyable prompt in two parts. First come the "Currently E
 
 ## Tests
 
-`evals/` holds 16 fictional test cases in each language (`cases.en.json`, and `cases.json` in Chinese) and a runner that gives the same target model your original request and the optimized prompt, then saves both results in random order for blind review:
+`evals/` holds fictional test cases (`cases.en.json`: 16 English cases for the v3.5.3 English edition; `cases.json`: 26 Chinese cases) and a runner that gives the same target model your original request and the optimized prompt, then saves both results in random order for blind review:
 
 ```bash
-python3 evals/run_eval.py --lang en --out ./eval-out --opt-model opus --target-model sonnet
+python3 evals/run_eval_v3.py --lang en --out ./eval-out --opt-model opus --target-model sonnet
 ```
 
-It needs the Claude Code CLI. The script only records outputs and runs a few mechanical checks; a person judges the results. Details are in [evals/README.md](evals/README.md) and [VALIDATION.md](VALIDATION.md) (Chinese).
+It needs the Claude Code CLI. The script only records outputs and runs a few mechanical checks; a person judges the results. The Chinese edition uses `evals/run_eval.py`. How every test was designed and judged, including the blind comparison against asking directly, is in [docs/TESTING.md](docs/TESTING.md) (Chinese, with an English summary); per-version numbers are in [VALIDATION.md](VALIDATION.md) (Chinese).
 
 ## Feedback
 
@@ -167,7 +167,8 @@ The most useful feedback is a real case where it got something wrong. [Open a ba
 
 ## Versions
 
-- **v4.0.0 (current):** Chinese edition rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; the main aim is fidelity, not better results. Manual use only: implicit invocation is off in both editions. Blind evaluations on strong models showed no stable quality gain over asking directly (GPT: 0 clear wins, 35 ties, 0 losses; Gemini: 6 complete pairs, no stable win). The English edition keeps the v3.5.3 rules.
+- **v4.0.4 (current):** first public release of four small revisions (4.0.1–4.0.4) to the Chinese edition: rule conflicts resolved, material containing injected instructions is kept verbatim and treated as data (only injections in the rules being optimized are removed), and one fixed sentence made consistent. These revisions were verified only statically and offline; web checks were single small samples. See [CHANGELOG.md](CHANGELOG.md).
+- **v4.0.0:** Chinese edition rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; the main aim is fidelity, not better results. Manual use only: implicit invocation is off in both editions. Blind evaluations on strong models showed no stable quality gain over asking directly (GPT: 0 clear wins, 35 ties, 0 losses; Gemini: 6 complete pairs, no stable win). The English edition keeps the v3.5.3 rules.
 - **v3.5.3:** placeholder examples describe a category instead of looking like real names, and prompts say what to do when a placeholder is left unfilled (deliver, mark the gap, never use the example as real). No notes or lead-in lines outside the prompt; strict JSON with no code fence; simple tasks get short prompts; prompts for Chinese output ask for full-width punctuation.
 - **v3.5.2:** keeps banned-word lists and relative times such as "by next Wednesday" exactly as you wrote them. Earlier versions sometimes widened a banned list to word variants or turned relative times into placeholders for a specific date.
 - **v3.5.1:** adds the English edition `prompt-optimizer-en`, English test cases and Claude Code plugin install. The rules are unchanged.
