@@ -8,7 +8,7 @@
 
 当前版本 **v4.1.0** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
 
-**自 v4.0.0 起仅手动使用。** 设了 `allow_implicit_invocation: false`，只在你明确要求时才会运行。在强模型上的盲评里，先优化再执行与直接提要求相比，没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。
+**自 v4.0.0 起仅手动使用。** 只应在你明确要求时运行：Codex 里由 `agents/openai.yaml` 的 `allow_implicit_invocation: false` 强制；Claude Code 等其他工具靠技能描述约束模型只在你要求时使用（想在 Claude Code 里只允许斜杠命令调用，可在自己安装的副本开头加 `disable-model-invocation: true`）。在强模型上的盲评里，先优化再执行与直接提要求相比，没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。
 
 这是一个 Skill（写给 AI 读的工作说明），放进 Claude Code、Codex 这类能读取技能文件的 AI 工具里使用。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
 
@@ -25,7 +25,7 @@
 
 只想听意见时说“先评价，别改”，它只指出问题，不重写。
 
-在 Claude Code、Codex 这类能自己干活的 AI 工具里，你也可以明确要求当前 AI 先用它把复杂任务的要求理清楚，再继续把任务做完；当前 AI 不会自己调用它（仅手动使用）。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
+在 Claude Code、Codex 这类能自己干活的 AI 工具里，你也可以明确要求当前 AI 先用它把复杂任务的要求理清楚，再继续把任务做完；当前 AI 不应自己调用它（仅手动使用，各工具的约束方式见上文）。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
 
 ## 看一个例子
 
@@ -118,7 +118,7 @@ v4.1.0 删除了英文版和 `prompt-optimizer-en/` 目录。你电脑上的旧�
   /plugin install prompt-optimizer@prompt-optimizer
   ```
 - **手动安装**：删掉技能目录里的旧 `prompt-optimizer-en` 文件夹（如 `~/.claude/skills/prompt-optimizer-en`、`~/.agents/skills/prompt-optimizer-en`），按上文安装 `prompt-optimizer`，再新开会话。
-- **点名调用**：改用 `$prompt-optimizer` 或 `/prompt-optimizer`。技能描述里写了旧名 `prompt-optimizer-en`，但只有仍装着同名文件夹或插件时，工具才能按旧名找到它。
+- **点名调用**：Codex 用 `$prompt-optimizer`，手动安装到 Claude Code 的用 `/prompt-optimizer`。插件里的技能带命名空间：主插件是 `/prompt-optimizer:prompt-optimizer`，旧名别名是 `/prompt-optimizer-en:prompt-optimizer`。原来的 `/prompt-optimizer-en:prompt-optimizer-en` 和 `$prompt-optimizer-en` 已不存在，旧名只在技能描述里提到。
 - **行为变化**：英文版是 v3.5.3 结构（“当前生效要求＋原始输入”），合并版是 v4 结构。需要旧行为的，可固定用旧文件：`git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git`，取其中的 `prompt-optimizer-en/` 文件夹。
 
 ## 怎么用
@@ -167,7 +167,7 @@ v4.1.0 删除了英文版和 `prompt-optimizer-en/` 目录。你电脑上的旧�
 - **待填空位**。原话缺信息时，它会留下 `{{待填写：……}}` 这样的空位，并写明没填时怎么处理：称呼、署名这类小缺口用通用写法；如果任务一点关键信息都没给（比如写商品介绍却没给任何产品信息），执行的 AI 会先停下来问你，而不是编造。
 - **偶尔仍有小偏差**。测试里简单任务偶尔仍会出现小标题；长文章即使提示词要求全角标点，执行的 AI 也不一定照做。交付前最好扫一眼“补充说明”，删掉你不想要的条目。
 - **不保证目标 AI 照做**。提示词写得再清楚，执行的 AI 也可能漏项或多写；重要的输出仍要自己核对。
-- **英文输出未单独实测**。v4.1.0 只是结构合并：v4 规则用中文考卷测过；英文考卷已对齐 v4，但本次没有在真实模型上重跑。
+- **合并版没有新的真实模型验证**。v4.1.0 只是结构合并。此前 v4 的测试以中文为主（v4.0.0 与直接提问的对比含 4 道英文题）；合并后的 v4.1.0 和更新后的英文考卷都没有在真实模型上跑过。
 - **测试规模小**。目前的验证只用过几十道虚构题（中英文考卷各 26 道，另有 12 道冻结题用于与直接提问对比），模型以 Claude 和 GPT 为主；在其他模型或长期使用中的表现没有系统测过。
 
 每种测试怎么做、怎么判、哪些结论成立，见[测试方法](docs/TESTING.md)；逐版数字见[验证记录](VALIDATION.md)，考卷用法见[考卷说明](evals/README.md)。

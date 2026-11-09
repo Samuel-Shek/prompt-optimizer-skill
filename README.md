@@ -12,7 +12,7 @@ This is a Skill: a set of working instructions written for an AI to read. You us
 
 **One edition for every language (since v4.1.0).** There is a single skill, `prompt-optimizer`, at the repository root. It replies in the language you write in: English requests get English labels and notes, Chinese requests get Chinese ones, and other languages are handled the same way. Your own wording and any material you paste are never translated. The rule file itself is written in Chinese; that doesn't change the language of the output. The separate English edition (`prompt-optimizer-en`, v3.5.3 rules) was removed in v4.1.0. If you used it, see [Upgrading from the English edition](#upgrading-from-the-english-edition-prompt-optimizer-en).
 
-**Manual use only (since v4.0.0).** `allow_implicit_invocation: false` is set, so it runs only when you explicitly ask for it. In blind evaluations on strong models, optimizing a request first gave no stable quality gain over asking the model directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md).
+**Manual use only (since v4.0.0).** It should run only when you explicitly ask for it. In Codex this is enforced by `allow_implicit_invocation: false` in `agents/openai.yaml`; in Claude Code and other hosts the skill description tells the model to use it only on request (if you want Claude Code to allow only the slash command, add `disable-model-invocation: true` to the frontmatter of your installed copy). In blind evaluations on strong models, optimizing a request first gave no stable quality gain over asking the model directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md).
 
 ## What it does
 
@@ -24,7 +24,7 @@ This is a Skill: a set of working instructions written for an AI to read. You us
 
 If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
 
-In tools that do work on their own, such as Claude Code and Codex, you can also explicitly ask the AI to run it on a complicated request first and then carry on with the task. The AI won't call it on its own (manual use only).
+In tools that do work on their own, such as Claude Code and Codex, you can also explicitly ask the AI to run it on a complicated request first and then carry on with the task. The AI shouldn't call it on its own (manual use only; see above for how each host enforces this).
 
 ## What the output looks like
 
@@ -83,7 +83,7 @@ This is a simple task, so there are no supplementary notes. A recorded real run 
 
 3. Start a new session so the tool loads the skill.
 
-**ChatGPT GPTs, Claude Projects or any chat app:** paste the contents of [`SKILL.md`](SKILL.md) into the custom instructions. In this setup, every task you send is treated as something to turn into a prompt.
+**ChatGPT GPTs, Claude Projects or any chat app:** paste the contents of [`SKILL.md`](SKILL.md) into the custom instructions (add [`references/methods.md`](references/methods.md) if you want its optional methods). Then ask explicitly, for example "optimize this prompt: …"; review requests and ordinary chat are still answered as such.
 
 ## Upgrading from the English edition (`prompt-optimizer-en`)
 
@@ -105,7 +105,7 @@ The English edition and its folder `prompt-optimizer-en/` were removed in v4.1.0
   /plugin install prompt-optimizer@prompt-optimizer
   ```
 - **Manual install:** delete the old `prompt-optimizer-en` folder from your skills folder (for example `~/.claude/skills/prompt-optimizer-en` or `~/.agents/skills/prompt-optimizer-en`), then install `prompt-optimizer` as above and start a new session.
-- **Calling it by name:** use `$prompt-optimizer` or `/prompt-optimizer`. The old name `prompt-optimizer-en` is listed in the skill description, but a tool can only find it by that name if a folder or plugin with that name is still installed.
+- **Calling it by name:** use `$prompt-optimizer` in Codex and `/prompt-optimizer` for a manually installed Claude Code skill. Plugin skills are namespaced: `/prompt-optimizer:prompt-optimizer` for the main plugin, `/prompt-optimizer-en:prompt-optimizer` for the legacy alias. The old command `/prompt-optimizer-en:prompt-optimizer-en` and `$prompt-optimizer-en` no longer exist; the old name is only mentioned in the skill description.
 - **Behaviour change:** the English edition used the v3.5.3 structure ("Currently Effective Requirements" plus "Original Input"). The merged skill uses the v4 structure above. If you need the old behaviour, pin the old files: `git clone --branch v4.0.4 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git` and copy its `prompt-optimizer-en/` folder.
 
 ## Usage
@@ -141,7 +141,7 @@ There are no other shortcuts. To set a target model or tool, or to let it ask yo
 
 - **Long output on complex tasks.** Your full wording is kept verbatim and the optimizer's notes come on top, so prompts for complex tasks are longer than what you typed.
 - **No guarantee the target AI complies.** However clear the prompt, the AI running it can still miss or add things. Check important output yourself.
-- **English output of v4 rules is not separately tested.** v4.1.0 is a structural merge: the v4 rules were tested with Chinese cases; the English exam was aligned to v4 but has not been re-run on real models for this release. Please report English bad cases.
+- **The merged skill has no new real-model validation.** v4.1.0 is a structural merge. Earlier v4 tests were mostly Chinese (the v4.0.0 comparison with asking directly included 4 English cases); the merged v4.1.0 skill and the updated English exam have not been run on real models. Please report English bad cases.
 - **Small test set.** Validation uses a few dozen fictional cases (26 Chinese and 26 English cases in the current exam files, plus 12 frozen cases in the comparison against asking directly), mainly on Claude and GPT models.
 
 ## Tests

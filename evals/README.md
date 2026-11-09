@@ -24,7 +24,7 @@ python3 evals/run_eval.py --lang en --out ./eval-out-en --opt-model opus --targe
 
 `--lang` 决定考卷文件、中性 system prompt（中文“你是一个乐于助人的助手。”／英文“You are a helpful assistant.”）、盲评文件的标题语言和 C09/H04 机械检查用词；语言写入 manifest 的续跑合约，换语言须用新的输出目录。
 
-English: one runner for both exams. `python3 evals/run_eval.py --lang en` runs `cases.en.json` (26 cases, same IDs as `cases.json`) against the same root `SKILL.md`. The old bilingual `run_eval_v3.py` was removed in v4.1.0; it is still available at tag v4.0.4.
+English: one runner for both exams. `python3 evals/run_eval.py --lang en --out ./eval-out-en` runs `cases.en.json` (26 cases, same IDs as `cases.json`) against the same root `SKILL.md`. The old bilingual `run_eval_v3.py` was removed in v4.1.0; it is still available at tag v4.0.4.
 
 `run_eval.py` 常用参数：`--ids C01,C02` 只跑指定题；`--rounds 2` 目标任务每侧跑两轮（优化稿仍只生成一次）；`--skill 路径` 测试另一版 `SKILL.md`；`--effect-mode system-deployment` 让声明了部署角色的题（C09）两侧同为 system，单独报告；`--resume` 只在源文件哈希与配置都一致时复用已校验的成功输出。输出目录须为空或用 `--resume`。
 

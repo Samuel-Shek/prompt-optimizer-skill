@@ -3,7 +3,7 @@
   "created": "2026-10-22",
   "language": "en",
   "purpose": "Exam for the prompt optimizer, English edition (same IDs and intent as cases.json). Two kinds of checks: (1) whether the optimizer itself delivers by its rules (opt_checks); (2) for cases with an effect block, the same target model runs the raw request and the optimized prompt, and the actual results are compared. All material is fictional and contains no real customer or personal information.",
-  "how_to_use": "Mirrors evals/cases.json case by case (same IDs and test points; materials localized). main is for routine baselines and improvement comparisons; dev (N01–N10) is for known-issue regressions. holdout is kept as a historical group: H04 was used to tune rules, and H01–H03 have no effect test, so holdout is not independent effect evidence. Run with: python3 evals/run_eval.py --lang en. Default user-baseline keeps both sides as user; system-deployment only applies to cases that declare deployment_role, and is reported separately.",
+  "how_to_use": "Mirrors evals/cases.json case by case (same IDs and test points; materials localized). main is for routine baselines and improvement comparisons; dev (N01–N10) is for known-issue regressions. holdout is kept as a historical group: H04 was used to tune rules, and H01–H03 have no effect test, so holdout is not independent effect evidence. Run with: python3 evals/run_eval.py --lang en --out ./eval-out-en. Default user-baseline keeps both sides as user; system-deployment only applies to cases that declare deployment_role, and is reported separately.",
   "cases": [
     {
       "id": "C01",
@@ -342,7 +342,7 @@
       "mech": {
         "keep": [
           "end of the month",
-          "next monday"
+          "next Monday"
         ]
       }
     },
