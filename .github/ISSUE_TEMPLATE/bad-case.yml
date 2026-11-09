@@ -1,0 +1,49 @@
+name: "Bad case / 失败案例"
+description: "The optimizer produced a worse prompt, dropped a requirement, or did the task instead. / 优化器改坏了、漏了要求，或者直接去做任务了。"
+labels: ["bad-case"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Every confirmed bad case becomes a public test case in `evals/`, so the next version is checked against it.
+        感谢反馈！确认的失败案例会脱敏后加入 `evals/` 公开测试题，下个版本会拿它来检验。
+        **Please remove passwords, keys, customer data and other private information before posting.**
+        **提交前请删除密码、密钥、客户资料等隐私信息。**
+  - type: dropdown
+    id: edition
+    attributes:
+      label: "Edition / 版本"
+      options:
+        - "prompt-optimizer-en (English)"
+        - "prompt-optimizer (中文)"
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: "Where you ran it / 运行环境"
+      placeholder: "e.g. Claude Code + Opus, Codex, ChatGPT GPTs / 例如 Claude Code + Opus、Codex、ChatGPT GPTs"
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: "Your input / 你的原始输入"
+      description: "Exactly what you sent to the optimizer. / 你发给优化器的原话。"
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: "What it returned / 它实际给出的结果"
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "What you expected / 你期望的结果"
+      description: "What was wrong: a dropped constraint, a changed fact, too long, did the task itself, etc. / 哪里不对：漏了约束、改了事实、太长、直接去做任务了等。"
+    validations:
+      required: true

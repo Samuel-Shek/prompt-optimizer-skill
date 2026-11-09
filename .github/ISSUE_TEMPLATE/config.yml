@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "Ideas & questions / 想法与提问"
+    url: "https://github.com/Samuel-Shek/prompt-optimizer-skill/discussions"
+    about: "Use Discussions for ideas, usage questions and show-and-tell. / 想法、用法问题和使用分享请到 Discussions。"

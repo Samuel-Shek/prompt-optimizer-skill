@@ -1,265 +1,182 @@
-# Prompt Optimizer ｜ 提示词优化器
+# prompt-optimizer
 
-> **历史版本 · 2026-10-13 已归档**
->
-> 日常提示词优化请使用维护中的 [prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer)。本仓库保留旧优化规则、文档与 OpenClaw 接入代码，不再维护。
->
-> **兼容边界**：新版优化器不包含本仓库 `integrations/prompt-optimizer-router/` 的旧 OpenClaw 接入插件，不能当作对应插件的直接替代。两个仓库使用相同的 `prompt-optimizer` 技术标识；不要重复安装或覆盖现有技能。以下安装与自动路由说明仅为历史记录，不构成恢复旧插件或后台的指令。
->
-> **Archived historical version.** Use the maintained prompt-optimizer for ordinary prompt editing. The legacy OpenClaw integration remains here and is not included in the replacement.
+**English** · [简体中文](README.zh-CN.md)
 
-把你随手写的一句话、一段粗糙需求、一份混杂的 system prompt，改写成可直接复制给任意 AI 使用的终版提示词。
+> **Moved here on 2026-11-09.** This repository is now the official home of Prompt Optimizer; [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) is archived. Releases before v4.0.0 and their tags stay in that archived repository. The old OpenClaw integration code that used to live here is kept on the [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) branch.
 
-Turn a rough idea, messy prompt, or tangled system prompt into a polished, ready-to-paste AI instruction.
+Turn a rough request, or a prompt you already have, into one prompt you can paste straight into an AI. It only rewrites the prompt. It doesn't do the task inside it for you.
 
----
+Current version **v4.0.0** (Chinese edition; the English edition is still v3.5.3) · MIT license · [Changelog](CHANGELOG.md) · [Validation (Chinese)](VALIDATION.md)
 
-## 🇨🇳 中文
+This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
 
-### 它是什么
+There are two editions: the English edition in `prompt-optimizer-en/` (skill name `prompt-optimizer-en`) and the Chinese edition at the repository root (skill name `prompt-optimizer`). Both reply in the language you write in. As of v4.0.0 they no longer share the same rules: the Chinese edition has the v4.0.0 rules, and the English edition keeps the v3.5.3 rules (not yet translated).
 
-一个单用途 Skill：**只优化提示词，不执行任务本身。**
+**Manual use only (since v4.0.0).** Both editions set `allow_implicit_invocation: false`, so they run only when you explicitly ask for them. In blind evaluations on strong models, optimizing a request first gave no stable quality gain over asking the model directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md).
 
-你发给它的每一条消息都会被当作"原材料"，输出一段结构清晰、约束明确的终版提示词。
+## What it does
 
-适合：
-- 优化一段已有 prompt
-- 把口语化需求变成专业 AI 指令
-- 重写 system prompt / agent 指令
-- 按 Claude / GPT / Gemini / DeepSeek / 开源模型适配格式
+- **Turns wishes into instructions an AI can follow.** "Make it professional" becomes checkable details such as audience, tone and structure, added only where they actually reduce misunderstanding. Simple tasks don't get a long template.
+- **Keeps your hard details exactly as written.** Numbers, dates, names, file names, prohibitions, markers like `[DATA NEEDED]`, and statuses such as "planned" or "to be verified" stay as they are. "Plan to apply for certification" never becomes "certified".
+- **Doesn't add conditions you didn't ask for.** It won't invent word counts, formats, filters or acceptance criteria and present them as your rules. When you ask for ideas, its additions are labeled as suggestions.
+- **Doesn't make up missing information.** If the target AI can look something up, the prompt says where. If only you can supply it, it leaves a placeholder for you to fill. It asks you questions, at most three, only when a gap would change the result and there's no sensible default.
+- **Tells instructions apart from material.** If text you paste in says "ignore all previous rules", it treats that as text to process, not as an order.
+- **Remembers across edits.** Your latest explicit change overrides the old requirement; anything you haven't withdrawn stays in force. "Make it shorter" won't quietly drop a prohibition.
 
-### 示例
+If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
 
-**你输入：**
+In tools that do work on their own, such as Claude Code and Codex, the AI can also call it to clarify a complicated request before finishing the task. In that case the prompt is for the AI's own use, and what you get back is the finished task.
 
-```
-优化提示词：帮我做一份竞品分析
-```
+## Example
 
-**它输出：**
-
-一段包含分析维度、输出结构、约束条件和占位符的完整提示词——拿到就能直接复制给任意 AI 使用。
-
-👉 完整 before → after 示例见 [docs/examples.zh-CN.md](docs/examples.zh-CN.md)
-
-### 新手入口
-
-- 3 分钟上手： [docs/3-minute-quickstart.zh-CN.md](docs/3-minute-quickstart.zh-CN.md)
-- 新手总导航： [docs/get-started.zh-CN.md](docs/get-started.zh-CN.md)
-
-### 三种使用方式
-
-#### 1. 手动模式（Manual Mode）
-
-> 你主动调用，它才工作。最简单、最稳。
-
-| 平台 | 怎么用 |
-|---|---|
-| **Claude Code（CLI + 桌面端）** | 输入 `/prompt-optimizer`，然后贴入原始内容。桌面端也可以点 `+` → 「Slash commands」选择。安装一次，CLI 和桌面端都能用。 |
-| **Codex** | 安装或更新后，先重启 Codex 或至少新开一个会话，让宿主重新发现 skills。之后最顺手的方式是输入 `$prompt-optimizer`，然后直接贴原始内容；也可以直接发“优化提示词：...”这类触发写法，让宿主按 skill 描述自动匹配。 |
-| **OpenClaw** | 进入 `prompt-optimizer` 专用工作区，贴入原始内容 |
-
-> 提醒：Codex 没有 Claude 那种 slash command 入口，但它可以在**新会话**里重新发现已安装的 skill。已经打开的旧会话通常不会热更新。
-
-安装：
-
-```bash
-bash scripts/install-local.sh claude                       # Claude Code（CLI + 桌面端）
-bash scripts/install-local.sh codex                        # Codex
-bash scripts/install-local.sh openclaw --mode skill-only   # OpenClaw
-bash scripts/install-local.sh all                          # 全部装
-```
-
-#### 2. 自动模式（Auto Mode）
-
-> 在普通聊天里发触发词，自动拦截处理。仅限 OpenClaw。
-
-你在任意普通 Agent 会话里发：
-
-```
-优化提示词：帮我做一份竞品分析
-```
-
-宿主会自动拦截这轮对话，转给提示词优化器处理，把结果写回原会话。下一轮对话自动回到普通模式。
-
-**4 种推荐触发写法：**
-
-```
-优化提示词：<你的原始内容>
-帮我优化：<你的原始内容>
-<你的原始内容>——优化提示词
-<你的原始内容>——帮我优化
-```
-
-安装：
-
-```bash
-bash scripts/install-local.sh openclaw --mode host-router
-```
-
-注意：
-- 默认只挂到 `main` agent，不会劫持其他 agent
-- 使用 `xhigh` 思考强度，质量优先，等待时间较长
-- 等待期间会显示 1-2 条简短进度提示
-
-#### 3. 复制粘贴模式（Copy-Paste Mode）
-
-> 导出纯文本 prompt，粘贴到任何 AI 平台。
-
-```bash
-bash scripts/print-prompt.sh
-```
-
-把输出的纯文本复制到 ChatGPT、Gemini、DeepSeek、Poe 或任何其他平台的 system prompt 里即可使用。
-
-### 手动模式 vs 自动模式怎么选？
-
-| | 手动模式 | 自动模式 | 复制粘贴模式 |
-|---|---|---|---|
-| **适合** | Claude Code / Codex 用户 | OpenClaw 聊天面板 / 飞书 / Telegram | ChatGPT / 其他平台 |
-| **触发方式** | Claude 用 `/prompt-optimizer`；Codex 用 `$prompt-optimizer` 或自然触发 | 在普通聊天发触发词 | 手动粘贴 prompt 正文 |
-| **配置复杂度** | 最低 | 多一层插件配置 | 零配置 |
-| **推荐** | Claude Code 用户首选 | 重度 OpenClaw 用户首选 | 不支持 skill 的平台 |
-
-### 回归测试
-
-```bash
-node scripts/test-trigger-detection.mjs      # 触发词识别测试
-node scripts/test-host-router-e2e.mjs         # 自动模式端到端测试（需本地 OpenClaw Gateway）
-```
-
-### 文件说明
-
-| 文件 | 说明 |
-|---|---|
-| `SKILL.md` | 唯一权威源文件（编辑入口） |
-| `AGENTS.md` / `CLAUDE.md` | `SKILL.md` 的别名 |
-| `scripts/install-local.sh` | 一键安装 |
-| `scripts/print-prompt.sh` | 导出纯文本 prompt |
-| `integrations/prompt-optimizer-router/` | 自动模式插件源码 |
-| `docs/3-minute-quickstart.zh-CN.md` | 3 分钟上手 |
-| `docs/get-started.zh-CN.md` | 新手总导航 |
-| `docs/examples.zh-CN.md` | 完整示例 |
-| `docs/cli-quickstart.zh-CN.md` | 最快 CLI 安装与使用 |
-| `docs/feishu-private-bot.zh-CN.md` | 飞书 / Lark 私聊教程 |
-| `docs/im-private-bots.zh-CN.md` | Telegram / Discord 私聊教程 |
-| `docs/landscape.zh-CN.md` | 同类项目对比 |
-| `docs/platforms.zh-CN.md` | 各平台接入说明 |
-| `references/model-adaptation.md` | 模型适配参考 |
-
-### 维护
-
-只改 `SKILL.md`。`AGENTS.md` 和 `CLAUDE.md` 会自动保持一致。
-
----
-
-## 🇬🇧 English
-
-### What is it
-
-A single-purpose skill: **it only optimizes prompts — it never executes the task itself.**
-
-Every message you send is treated as raw material. The output is a structured, ready-to-paste final prompt.
-
-Good for:
-- Improving an existing prompt
-- Turning a rough idea into a professional AI instruction
-- Rewriting system prompts and agent instructions
-- Adapting prompt format for Claude, GPT, Gemini, DeepSeek, and open-source models
-
-### Example
+This is real output from one test run on 2026-10-22, unedited. The meeting is fictional.
 
 **You type:**
 
+```text
+Help me optimize this prompt: turn my meeting notes below into a Slack message to the team, under 80 words, polite but direct.
+Meeting notes: first draft due before Thursday; Alex owns the data section; budget isn't approved yet, so don't buy any tools.
 ```
-optimize prompt: write a competitive analysis report
-```
 
-**It outputs:**
+**The prompt it gives you:**
 
-A complete prompt with analysis dimensions, output structure, constraints, and placeholders — ready to paste into any AI.
+````markdown
+# Currently Effective Requirements
 
-👉 Full before → after examples: [docs/examples.zh-CN.md](docs/examples.zh-CN.md)
+## Task
+Turn the meeting notes below into a single Slack message for the team.
 
-### Quick links
+## Output
+- One ready-to-post Slack message, nothing else (no preamble, options, or commentary).
+- Under 80 words.
+- Tone: polite but direct — courteous, no filler or over-apologizing.
+- Plain Slack-friendly text; light formatting (short lines, bullets, bold) is optional as long as the word limit holds.
 
-- 3-minute quickstart: [docs/3-minute-quickstart.zh-CN.md](docs/3-minute-quickstart.zh-CN.md)
-- Starter guide: [docs/get-started.zh-CN.md](docs/get-started.zh-CN.md)
+## Content rules
+- Cover all three points from the notes:
+  1. First draft is due before Thursday.
+  2. Alex owns the data section.
+  3. Budget is not yet approved, so no tool purchases.
+- Keep facts exactly as stated. Do not add deadlines, owners, approvals, next steps, or meeting details that are not in the notes.
+- Keep the budget status as "not yet approved" (pending) — do not imply it was rejected or approved.
+- Keep "don't buy any tools" as a clear instruction to the team, not a suggestion.
+- "Before Thursday" means the draft is due ahead of Thursday; do not restate it as "on Thursday".
 
-### Three ways to use it
+## Meeting notes (source material)
+- First draft due before Thursday
+- Alex owns the data section
+- Budget isn't approved yet, so don't buy any tools
 
-#### 1. Manual Mode
+---
 
-> You invoke it explicitly. Simplest and most stable.
+# Original Input (for reference)
 
-| Platform | How |
+turn my meeting notes below into a Slack message to the team, under 80 words, polite but direct.
+Meeting notes: first draft due before Thursday; Alex owns the data section; budget isn't approved yet, so don't buy any tools.
+````
+
+**The same AI (Claude Sonnet) then ran your original request and this prompt:**
+
+| Your original request | The optimized prompt |
 |---|---|
-| **Claude Code (CLI + Desktop)** | Type `/prompt-optimizer`, then paste your content. In the desktop app, you can also click `+` → "Slash commands". Install once, works in both CLI and desktop. |
-| **Codex** | After installing or updating the skill, restart Codex or at least start a fresh session so the host can rediscover skills. The smoothest path is to type `$prompt-optimizer` and paste the raw content directly. You can also send trigger phrases like `optimize prompt: ...` and let the host match the skill description automatically. |
-| **OpenClaw** | Enter the `prompt-optimizer` workspace, then paste |
+| Hi team! 👋 Quick recap from our meeting:<br><br>• **First draft is due before Thursday** — please plan accordingly.<br>• **Alex** will own the **data section**.<br>• **Budget isn't approved yet**, so please hold off on purchasing any tools for now.<br><br>Let me know if you have questions. Thanks for your hard work! | Hi team, quick update:<br><br>• First draft is due **before Thursday**<br>• **Alex** owns the data section<br>• Budget hasn't been approved yet, so please **don't purchase any tools** for now<br><br>Thanks all! |
 
-> Note: Codex does not use Claude-style slash commands, but it can rediscover installed skills in a **fresh session**. Already-open sessions usually do not hot-reload new or updated skills.
+Both are usable here. The optimized version is shorter and more direct, without the "thanks for your hard work" filler. This is one run of one simple task, and simple tasks often work fine without optimizing.
 
-Install:
+## Install
 
-```bash
-bash scripts/install-local.sh claude
-bash scripts/install-local.sh codex
-bash scripts/install-local.sh openclaw --mode skill-only
-bash scripts/install-local.sh all
+**Claude Code (plugin marketplace)**
+
+```text
+/plugin marketplace add Samuel-Shek/prompt-optimizer-skill
+/plugin install prompt-optimizer-en@prompt-optimizer
 ```
 
-#### 2. Auto Mode
+For the Chinese edition, install `prompt-optimizer@prompt-optimizer` instead.
 
-> Use trigger phrases in normal chat — it intercepts automatically. OpenClaw only.
+**Manual install**
 
-In any ordinary agent chat, type:
+1. Download:
 
+   ```bash
+   git clone --branch v4.0.0 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git
+   ```
+
+   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.0.0).
+
+2. Copy the `prompt-optimizer-en` folder into your AI tool's skills folder, keeping its `references/` and `agents/` subfolders. Common locations: `~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex. Check your tool's current docs.
+
+3. Start a new session so the tool loads the skill.
+
+**ChatGPT GPTs, Claude Projects or any chat app:** paste the contents of [`prompt-optimizer-en/SKILL.md`](prompt-optimizer-en/SKILL.md) into the custom instructions. In this setup, every task you send is treated as something to turn into a prompt.
+
+## Usage
+
+Say "optimize this prompt", or call it by name:
+
+```text
+Use $prompt-optimizer-en: write a research prompt comparing three note-taking apps.
+Target: ChatGPT on the web. Public sources only, separate facts from opinions, keep source dates.
+Don't sign up for accounts, buy anything, or make personal choices for me.
 ```
-优化提示词：write a competitive analysis report
-帮我优化：write a competitive analysis report
+
+```text
+Review it, don't rewrite:
+(paste the prompt to review)
 ```
 
-The host intercepts the turn, routes it to the optimizer specialist, injects the result back, and resumes normal chat on the next turn.
+Optional shortcuts:
 
-Install:
-
-```bash
-bash scripts/install-local.sh openclaw --mode host-router
-```
-
-#### 3. Copy-Paste Mode
-
-> Export the raw prompt text and paste it into any AI platform.
-
-```bash
-bash scripts/print-prompt.sh
-```
-
-Copy the output into ChatGPT, Gemini, DeepSeek, Poe, or any other platform's system prompt field.
-
-### File reference
-
-| File | Purpose |
+| Shortcut | What it does |
 |---|---|
-| `SKILL.md` | Single source of truth (edit here) |
-| `AGENTS.md` / `CLAUDE.md` | Aliases for `SKILL.md` |
-| `scripts/install-local.sh` | One-command installer |
-| `scripts/print-prompt.sh` | Export plain prompt body |
-| `integrations/prompt-optimizer-router/` | Auto Mode plugin source |
-| `docs/3-minute-quickstart.zh-CN.md` | 3-minute quickstart |
-| `docs/get-started.zh-CN.md` | Starter guide |
-| `docs/examples.zh-CN.md` | Full examples |
-| `docs/cli-quickstart.zh-CN.md` | Fastest CLI setup |
-| `docs/feishu-private-bot.zh-CN.md` | Feishu / Lark DM setup |
-| `docs/im-private-bots.zh-CN.md` | Telegram / Discord DM setup |
-| `docs/landscape.zh-CN.md` | Comparison with similar projects |
-| `references/model-adaptation.md` | Model adaptation notes |
+| `+explain` | Adds up to 5 notes on the key changes after the final prompt |
+| `+ask` | Lets it ask up to 3 necessary questions first |
+| `+two` | Gives two versions with different purposes |
+| `@target=model or tool` | Adapts the wording to a model or tool, e.g. `@target=Claude Code` |
 
-### Privacy
+### What the output looks like
 
-This repo contains no chat logs, credentials, or local screenshots. Only shareable skill files, scripts, and docs are published.
+By default you get one copyable prompt in two parts. First come the "Currently Effective Requirements", which the target AI follows. Then comes your original wording, marked "Original Input (for reference)", so whoever runs it can check the original intent and catch anything missed. That's why the final prompt is usually longer than what you typed. It's deliberate.
 
-### License
+## When not to use it
 
-MIT
+- **Simple tasks are easier to ask directly.** For a one-line translation or a short message, the optimized prompt is much longer than your request and the result is about the same.
+- **It doesn't do the task.** If you want the analysis, article or code, ask the AI for it directly. Optimizing first pays off when you want to pin down requirements, reuse the same prompt, or the task has many hard constraints.
+
+## Known limitations
+
+- **Long output.** The optimized prompt is usually five to ten times longer than your request, partly because your original wording is attached for checking.
+- **Placeholders.** When information is missing, it leaves slots like `{{TO FILL: ...}}` and tells the AI how to handle them if you leave them empty. Small gaps (a greeting, a signature) are written generically; if a task gives no key information at all (for example a product description with no product details), the AI will stop and ask you rather than invent details.
+- **Occasional slips.** In tests a simple task sometimes still got subheadings, and the executing model did not always follow a request for full-width Chinese punctuation in long articles. Skim the "Currently Effective Requirements" and delete anything you don't want.
+- **No guarantee the target AI complies.** However clear the prompt, the AI running it can still miss or add things. Check important output yourself.
+- **Small test set.** Validation so far uses 16 fictional cases per language, mainly on Claude and GPT models. Other models and long-term use haven't been tested systematically.
+
+## Tests
+
+`evals/` holds 16 fictional test cases in each language (`cases.en.json`, and `cases.json` in Chinese) and a runner that gives the same target model your original request and the optimized prompt, then saves both results in random order for blind review:
+
+```bash
+python3 evals/run_eval.py --lang en --out ./eval-out --opt-model opus --target-model sonnet
+```
+
+It needs the Claude Code CLI. The script only records outputs and runs a few mechanical checks; a person judges the results. Details are in [evals/README.md](evals/README.md) and [VALIDATION.md](VALIDATION.md) (Chinese).
+
+## Feedback
+
+The most useful feedback is a real case where it got something wrong. [Open a bad-case issue](https://github.com/Samuel-Shek/prompt-optimizer-skill/issues/new?template=bad-case.yml) with your input, what it returned and what you expected. Confirmed cases are anonymized and added to `evals/`, so every later version is tested against them. Ideas and questions go to [Discussions](https://github.com/Samuel-Shek/prompt-optimizer-skill/discussions).
+
+## Versions
+
+- **v4.0.0 (current):** Chinese edition rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; the main aim is fidelity, not better results. Manual use only: implicit invocation is off in both editions. Blind evaluations on strong models showed no stable quality gain over asking directly (GPT: 0 clear wins, 35 ties, 0 losses; Gemini: 6 complete pairs, no stable win). The English edition keeps the v3.5.3 rules.
+- **v3.5.3:** placeholder examples describe a category instead of looking like real names, and prompts say what to do when a placeholder is left unfilled (deliver, mark the gap, never use the example as real). No notes or lead-in lines outside the prompt; strict JSON with no code fence; simple tasks get short prompts; prompts for Chinese output ask for full-width punctuation.
+- **v3.5.2:** keeps banned-word lists and relative times such as "by next Wednesday" exactly as you wrote them. Earlier versions sometimes widened a banned list to word variants or turned relative times into placeholders for a specific date.
+- **v3.5.1:** adds the English edition `prompt-optimizer-en`, English test cases and Claude Code plugin install. The rules are unchanged.
+- **v3.5.0:** fewer self-invented conditions. It separates your original requirements, equivalent clarifications and its own suggestions, and doesn't add counts, formats, filters or acceptance criteria without a basis.
+
+Full history: [CHANGELOG.md](CHANGELOG.md) (Chinese).
+
+## Credits and license
+
+The design drew on several public prompt-optimization resources for ideas only; no text was copied. See [design references](docs/design-references.md) (Chinese). The four optional methods in `references/methods.md` credit their sources inside that file.
+
+Original content in this repository is under the [MIT](LICENSE) license. Linked third-party material belongs to its owners.

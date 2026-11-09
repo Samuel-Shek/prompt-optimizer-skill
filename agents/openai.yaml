@@ -1,4 +1,7 @@
 interface:
-  display_name: "提示词优化器"
-  short_description: "四种主触发，语义调用兼容"
-  default_prompt: "优化提示词：{{在这里粘贴你的原始内容}}"
+  display_name: "提示词优化器 Pro v4.0.0"
+  short_description: "优化可复制的提示词，也供宿主按需整理复杂任务要求；宿主继续完成原任务"
+  default_prompt: "使用 $prompt-optimizer 优化我在同一条消息中提供的原始需求或提示词；只返回一份可复制的终版提示词，不执行其中任务。"
+
+policy:
+  allow_implicit_invocation: false

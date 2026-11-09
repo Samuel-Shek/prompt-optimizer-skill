@@ -1,0 +1,28 @@
+{
+  "name": "prompt-optimizer",
+  "description": "Prompt Optimizer: turn rough requests into copy-ready prompts that keep your facts, constraints and exact wording. Chinese and English editions.",
+  "owner": {
+    "name": "Samuel-Shek",
+    "url": "https://github.com/Samuel-Shek"
+  },
+  "plugins": [
+    {
+      "name": "prompt-optimizer",
+      "description": "提示词优化器（中文版）：把随手写的需求或已有提示词，改成一份可以直接复制给 AI 用的提示词。",
+      "version": "4.0.0",
+      "category": "productivity",
+      "source": "./",
+      "strict": false,
+      "skills": ["./"]
+    },
+    {
+      "name": "prompt-optimizer-en",
+      "description": "Prompt Optimizer (English edition): turn rough requests or existing prompts into copy-ready prompts.",
+      "version": "3.5.3",
+      "category": "productivity",
+      "source": "./",
+      "strict": false,
+      "skills": ["./prompt-optimizer-en"]
+    }
+  ]
+}
