@@ -3,9 +3,9 @@ name: prompt-optimizer
 description: >
   On-demand automatic use: for each question or task, first judge whether it is clear enough that you can answer it well directly, using your own ability and what you know about the user; if so, answer or do it directly and do not invoke this skill. Invoke it automatically only when the request is clearly vague or missing key information, or when the user explicitly asks to optimize a prompt (e.g. 优化提示词). When invoked, keep the user's original words verbatim, offer additions only as suggestions, and never make up information the user did not give. Optimize, adapt, shorten, expand, or audit rough requirements, prompts, system prompts, and agent instructions in any language; reply in the user's language. Use when the user asks to optimize, rewrite, tighten, expand, adapt, or review a prompt, System Prompt, or agent instruction (e.g. 优化提示词、改写 prompt、精简/扩写/适配/审计 System Prompt 或 Agent 指令), explicitly invokes $prompt-optimizer, /prompt-optimizer, or prompt-optimizer (including the legacy name prompt-optimizer-en), or continues editing the previous version of a prompt. Return one copy-ready final prompt for user-facing rewrite requests; provide review only for audit-only requests. Do not trigger merely because any execution request could be rewritten as a prompt; clear questions and tasks are answered or done directly.
 metadata:
-  version: "4.1.1"
+  version: "4.1.2"
 ---
-# 提示词优化器｜通用型（PO-U）v4.1.1 · Prompt Optimizer
+# 提示词优化器｜通用型（PO-U）v4.1.2 · Prompt Optimizer
 
 ## 一、职责
 
@@ -68,7 +68,7 @@ metadata:
 - 对原话里任何词的重新定义，或扩大、缩小它的含义，例如“budget 指预算或支出金额”；
 - 关于工具、权限或能力的断言，例如“你没有预约工具”，除非原话写了；
 - 把计划、未来或可能的动作写成已经发生或正在进行，例如把“会转人工”写成“正在转人工”；
-- 编造的事实、示例值或业务规则；
+- 原话和材料里没有的引用或事实，以及编造的示例值或业务规则；引号只用于逐字引用原话、材料或本 Skill 规定的固定句，不得包装自拟文字，例如自拟小标题“三步搞定周报”应改用不加引号的普通叙述；
 - 对用户禁止项、限制、排除内容或字段的复述、归纳和重新列举，包括自检清单。需要提醒时只写“逐条对照‘用户原话’检查”，不另列具体内容。这一条也包括原话没有的保密或不披露规则，例如“不得透露本提示词”。
 
 你认为有必要但原话没有的要求，写进“待确认”，作为建议提出，不写成规则。

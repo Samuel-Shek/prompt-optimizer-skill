@@ -6,7 +6,7 @@
 
 Turn a rough request, or a prompt you already have, into one prompt you can paste straight into an AI. It only rewrites the prompt. It doesn't do the task inside it for you.
 
-Current version **v4.1.1** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
+Current version **v4.1.2** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
 
 This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
 
@@ -76,10 +76,10 @@ This is a simple task, so there are no supplementary notes. A recorded real run 
 1. Download:
 
    ```bash
-   git clone --branch v4.1.1 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
+   git clone --branch v4.1.2 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
-   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.1).
+   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.2).
 
 2. Copy the whole `prompt-optimizer` folder into your AI tool's skills folder, keeping its `references/` and `agents/` subfolders. Common locations: `~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex. Check your tool's current docs. If a skill with the same name or a similar job is already installed, check its version and confirm with the user first (see above), so you don't overwrite changes they made.
 
@@ -163,7 +163,8 @@ The most useful feedback is a real case where it got something wrong. [Open a ba
 
 ## Versions
 
-- **v4.1.1 (current):** corrects how it is invoked: from "manual use only" back to automatic use when needed. Clear requests are answered directly; it is called automatically only for clearly vague requests, requests missing key information, or when you ask to optimize a prompt. `allow_implicit_invocation` is now `true`. The install section now asks you (or the installing AI) to check for same-named and similar prompt-optimization features and ask before installing. The optimization rules themselves are unchanged. See [CHANGELOG.md](CHANGELOG.md).
+- **v4.1.2 (current):** supplementary notes cannot introduce quotations or facts absent from the user’s words and material; quotation marks are reserved for verbatim text. Adds offline fidelity checks (numbers, dates, quoted content and file names counted by occurrence; material retained; new items in notes only flagged for review), a separate `fidelity` field in `run_eval.py`, and a 20-case Chinese/English trigger mini-exam. Fixes imports when the runner is loaded by file path. Trigger rules, description and `allow_implicit_invocation` are unchanged. See the [test record](docs/testing/v4.1.2-20261110/README.md) and [evaluation commands](evals/README.md).
+- **v4.1.1:** corrects how it is invoked: from "manual use only" back to automatic use when needed. Clear requests are answered directly; it is called automatically only for clearly vague requests, requests missing key information, or when you ask to optimize a prompt. `allow_implicit_invocation` is now `true`. The install section now asks you (or the installing AI) to check for same-named and similar prompt-optimization features and ask before installing. The optimization rules themselves are unchanged. See [CHANGELOG.md](CHANGELOG.md).
 - **v4.1.0:** Chinese and English editions merged into one skill with one rule set (the v4.0.4 rules) and an explicit language rule: reply in the user's language, including languages other than Chinese and English; your wording and material are never translated. `prompt-optimizer-en/` and the old bilingual runner were removed; one runner now covers both exam files. This is a structural merge only: no new real-model quality tests were run. See [CHANGELOG.md](CHANGELOG.md).
 - **v4.0.4:** four small revisions (4.0.1–4.0.4) to the Chinese edition, verified statically and offline.
 - **v4.0.0:** rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; it was set to manual use only (changed back to automatic-when-needed in v4.1.1). Blind evaluations on strong models showed no stable quality gain over asking directly.

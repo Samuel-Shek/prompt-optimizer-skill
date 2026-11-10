@@ -30,6 +30,21 @@ English: one runner for both exams. `python3 evals/run_eval.py --lang en --out .
 
 脚本只记录输出和少量机械检查，并生成随机顺序的 A/B 盲评文件。**效果好坏由人（或另一个读取保存文件的评审）判断，脚本不打分。** 也可以不用脚本，把 `cases.json` 里的 `optimizer_input` 手动交给任何模型。
 
+## 离线保真检查与触发判断（v4.1.2）
+
+`fidelity.py` 对已有输出做离线机械保真检查，不调用模型：数字、日期、引号内容和文件名按出现次数核对，材料不得删；补充说明里的新增项只告警。`run_eval.py` 将结果放在独立的 `fidelity` 字段里，不混入原有 `mech` 检查。保真结果只是复核信号，不影响评测退出码；独立脚本在正常完成检查时返回 0，输入或读取错误返回 2。多轮撤销等语义问题仍需人工复核。
+
+```bash
+python3 evals/fidelity.py --out DIR
+python3 evals/fidelity.py --out DIR --lang zh
+python3 evals/fidelity.py --out DIR --lang en
+python3 evals/trigger_eval.py --out NEW_DIR --lang all
+```
+
+保真命令形式为 `python3 evals/fidelity.py --out DIR [--lang zh|en]`；未指定语言时读取 manifest，否则默认中文。`trigger_eval.py` 是需要 `claude` CLI 的触发判断小考卷，中英各 10 条（共 20 条）；输出目录必须新建或为空。它只检查模拟宿主是否选中技能，不证明真实宿主自动调用已生效，也不评判优化稿质量。参见[测试记录](../docs/testing/v4.1.2-20261110/README.md)。
+
+English: `fidelity.py` is an offline review of existing outputs; it makes no model calls. It checks occurrence counts for numbers, dates, quoted content and file names, and checks that material is retained. New items in supplementary notes only produce warnings. `run_eval.py` records a separate `fidelity` field. Findings are review signals and do not affect the evaluation exit code; the standalone checker returns 0 after a completed check, or 2 on input/read errors. Run `python3 evals/fidelity.py --out DIR [--lang zh|en]`. Multi-turn revocations still need semantic review. `python3 evals/trigger_eval.py --out NEW_DIR --lang all` requires the `claude` CLI and runs 20 fictional requests (10 per language). Use a new or empty directory. This tests simulated skill selection, not the real host router or output quality.
+
 ## 已有结果
 
 2026-10-13 至 10-14，用本考卷对 v3.3、v3.4 各做过测试（均为虚构材料）：

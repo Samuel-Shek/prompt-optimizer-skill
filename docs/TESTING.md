@@ -102,6 +102,21 @@ python3 evals/run_eval.py --lang en --out ./eval-out-en --opt-model opus --targe
 
 `--lang en` 换用 `cases.en.json`、英文中性 system prompt（“You are a helpful assistant.”）、英文盲评标题和英文的 C09/H04 机械检查用词，其余流程与中文完全相同；语言写进续跑合约。v4.1.0 只用假命令行做过中英文各一次离线冒烟（26 题跑通、12 组对照生成、换语言续跑被拒），没有真实模型结果。v3.5.x 时期的双语脚本 `run_eval_v3.py` 已在 v4.1.0 删除，需要时可从 v4.0.4 标签取用。
 
+## 离线保真检查与触发判断（v4.1.2）
+
+`fidelity.py` 对已有输出做离线机械保真检查，不调用模型：数字、日期、引号内容和文件名按出现次数核对，材料不得删；补充说明里的新增项只告警。`run_eval.py` 将结果放在独立的 `fidelity` 字段里，不混入原有 `mech` 检查。保真结果只是复核信号，不影响评测退出码；独立脚本在正常完成检查时返回 0，输入或读取错误返回 2。多轮撤销等语义问题仍需人工复核。
+
+```bash
+python3 evals/fidelity.py --out DIR
+python3 evals/fidelity.py --out DIR --lang zh
+python3 evals/fidelity.py --out DIR --lang en
+python3 evals/trigger_eval.py --out NEW_DIR --lang all
+```
+
+保真命令形式为 `python3 evals/fidelity.py --out DIR [--lang zh|en]`；未指定语言时读取 manifest，否则默认中文。`trigger_eval.py` 是需要 `claude` CLI 的触发判断小考卷，中英各 10 条（共 20 条）；输出目录必须新建或为空。它只检查模拟宿主是否选中技能，不证明真实宿主自动调用已生效，也不评判优化稿质量。参见[测试记录](testing/v4.1.2-20261110/README.md)。
+
+English: `fidelity.py` is an offline review of existing outputs; it makes no model calls. It checks occurrence counts for numbers, dates, quoted content and file names, and checks that material is retained. New items in supplementary notes only produce warnings. `run_eval.py` records a separate `fidelity` field. Findings are review signals and do not affect the evaluation exit code; the standalone checker returns 0 after a completed check, or 2 on input/read errors. Run `python3 evals/fidelity.py --out DIR [--lang zh|en]`. Multi-turn revocations still need semantic review. `python3 evals/trigger_eval.py --out NEW_DIR --lang all` requires the `claude` CLI and runs 20 fictional requests (10 per language). Use a new or empty directory. This tests simulated skill selection, not the real host router or output quality.
+
 ## 4. 针对性对照与回归盲评（v3.5.x）
 
 v3.5.2 和 v3.5.3 的做法如下（v3.5.0、v3.5.1 的做法不同，例如 v3.5.1 英文版每题只跑一次、没有盲评；各版细节和数字以 [VALIDATION.md](../VALIDATION.md) 为准）：

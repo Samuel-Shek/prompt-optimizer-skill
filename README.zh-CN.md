@@ -6,7 +6,7 @@
 
 把随手写的需求或已有的提示词，改成一份可以直接复制给 AI 用的提示词。它只改提示词，不替你去做提示词里的事。
 
-当前版本 **v4.1.1** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
+当前版本 **v4.1.2** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
 
 **按需自动调用（v4.1.1 起）。** 每次你提问或交代任务，AI 先自己判断：问题是否已经足够清楚？凭它自己的能力和对你的了解，能不能直接答好？能，就直接回答，不调用优化器；只有问题明显含糊、缺少关键信息，或者你明确说“优化提示词”时，才自动调用它。调用时保留你的原话，补充内容只作为建议，不替你编造没说过的信息。Codex 里由 `agents/openai.yaml` 的 `allow_implicit_invocation: true` 允许这种自动调用；Claude Code 等其他工具按技能描述做同样的判断（想只允许斜杠命令调用，可在自己安装的副本开头加 `disable-model-invocation: true`）。为什么不每次都用：强模型盲评里，清楚的问题先优化再执行与直接提要求相比没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。v4.0.0–v4.1.0 曾写成“仅手动使用”，那是记录错误，v4.1.1 已改正。
 
@@ -91,10 +91,10 @@
 1. 下载：
 
    ```bash
-   git clone --branch v4.1.1 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
+   git clone --branch v4.1.2 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
-   也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.1)下载压缩包。
+   也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.2)下载压缩包。
 
 2. 把下载得到的整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名或类似技能的，按上面的说明先确认，别把自己改过的内容覆盖掉。
 
@@ -176,7 +176,8 @@ v4.1.0 删除了英文版和 `prompt-optimizer-en/` 目录。你电脑上的旧�
 
 ## 版本
 
-- **v4.1.1（当前）**：改正调用方式：由“仅手动使用”改回按需自动调用——问题清楚就直接回答，明显含糊、缺关键信息或你明确说“优化提示词”时才自动调用；`allow_implicit_invocation` 改为 `true`。安装说明要求先检查同名和类似的提示词优化功能，发现后先问你再装。规则正文的优化方法没有改动，详见[版本记录](CHANGELOG.md)。
+- **v4.1.2（当前）**：补充说明不得引入原话和材料里没有的引用或事实，引号只用于逐字引用。新增离线保真检查（数字、日期、引号内容和文件名按次数核对，材料不得删，补充说明新增项只告警），接入 `run_eval.py` 的独立 `fidelity` 字段；新增中英共 20 条触发判断小考卷，修复按文件加载运行脚本时的导入问题。触发规则、description 和 `allow_implicit_invocation` 不变。见[测试记录](docs/testing/v4.1.2-20261110/README.md)及[运行方法](evals/README.md)。
+- **v4.1.1**：改正调用方式：由“仅手动使用”改回按需自动调用——问题清楚就直接回答，明显含糊、缺关键信息或你明确说“优化提示词”时才自动调用；`allow_implicit_invocation` 改为 `true`。安装说明要求先检查同名和类似的提示词优化功能，发现后先问你再装。规则正文的优化方法没有改动，详见[版本记录](CHANGELOG.md)。
 - **v4.1.0**：中英文两版合并为一个技能、一套规则（以 v4.0.4 为准），写明语言规则：跟随用户语言，中英文以外的语言也一样，原话和材料不翻译。删除 `prompt-optimizer-en/` 和旧的双语运行脚本，一个运行脚本覆盖中英文两份考卷。这一版只是结构合并，没有新的真实模型质量测试，详见[版本记录](CHANGELOG.md)。
 - **v4.0.4**：中文版 4.0.1–4.0.4 四个小修订的首次公开发布：消除规则冲突；材料里夹带的指令原样保留、按数据处理，只移出待优化规则文本里的注入；统一一句固定优先句。这些修订只做过静态和离线验证，网页实测是单次小样本，详见[版本记录](CHANGELOG.md)。
 - **v4.0.0**：中文版重写为照抄你的原话，优化器自己补充的内容从属于原话；这一版主要保证保真，不承诺成品更好。当时改为仅手动使用、关闭自动调用（v4.1.1 已改回按需自动调用）。强模型盲评中，与直接提要求相比没有稳定提升（GPT：明显胜 0、平 35、负 0；Gemini：完成 6 组完整对照，没有稳定胜出）。英文版保持 v3.5.3 规则。

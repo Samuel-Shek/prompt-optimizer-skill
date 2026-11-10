@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {"id": "TZ01", "lang": "zh", "user_message": "一个三角形的内角和是多少度？", "expected": "direct", "reason": "清楚的基础事实问答，无需整理提示词。"},
+    {"id": "TZ02", "lang": "zh", "user_message": "把‘The lantern is beside the window.’翻译成中文，只给译文。", "expected": "direct", "reason": "翻译原文、语言与输出要求齐全。"},
+    {"id": "TZ03", "lang": "zh", "user_message": "写一个约80字的童话开头，主角是一只怕黑的小刺猬，语气温柔。", "expected": "direct", "reason": "清楚的写作任务，创作细节可合理发挥。"},
+    {"id": "TZ04", "lang": "zh", "user_message": "用Python写函数is_even(n)，输入整数，返回它是否为偶数的布尔值，并给两个assert示例。", "expected": "direct", "reason": "代码功能、输入输出和示例要求明确。"},
+    {"id": "TZ05", "lang": "zh", "user_message": "将下面的库存按数量从小到大排成Markdown表格，列为物品、数量：纸风车7，木陀螺2，布偶5。", "expected": "direct", "reason": "数据和执行要求完整；不能仅因可改写成提示词而触发。"},
+    {"id": "TZ06", "lang": "zh", "user_message": "帮我弄个方案，越合适越好。", "expected": "invoke", "reason": "没有方案主题、目标或用途，明显含糊。"},
+    {"id": "TZ07", "lang": "zh", "user_message": "按我选的评分规则给这几份作品排名。", "expected": "invoke", "reason": "没有提供作品和所选评分规则，缺少关键输入。"},
+    {"id": "TZ08", "lang": "zh", "user_message": "优化提示词：给初学者解释雨后为什么有时会出现彩虹，用生活中的比喻。", "expected": "invoke", "reason": "明确要求优化提示词，即使目标任务清楚也调用。"},
+    {"id": "TZ09", "lang": "zh", "user_message": "$prompt-optimizer 写四句关于纸船的儿歌，每句不超过十个字。", "expected": "invoke", "reason": "显式使用美元符号技能命令。"},
+    {"id": "TZ10", "lang": "zh", "user_message": "/prompt-optimizer 根据输入的食材列出三种素食午餐搭配。", "expected": "invoke", "reason": "显式使用斜杠技能命令。"},
+    {"id": "TE01", "lang": "en", "user_message": "How many sides does a hexagon have?", "expected": "direct", "reason": "A clear factual question that the host can answer directly."},
+    {"id": "TE02", "lang": "en", "user_message": "Translate 'The kite landed in the garden.' into Spanish. Return only the translation.", "expected": "direct", "reason": "The source, target language and output format are supplied."},
+    {"id": "TE03", "lang": "en", "user_message": "Write a playful four-line poem about a sleepy robot learning to dance.", "expected": "direct", "reason": "A clear creative writing task; ordinary creative choices are not missing key information."},
+    {"id": "TE04", "lang": "en", "user_message": "Write a JavaScript function square(n) that returns n multiplied by itself, followed by two console.assert examples.", "expected": "direct", "reason": "The language, function behavior and requested examples are explicit."},
+    {"id": "TE05", "lang": "en", "user_message": "Convert this list to a JSON array of objects with keys item and count: blue marbles 6; red marbles 3. Output only JSON.", "expected": "direct", "reason": "A fully specified execution request must not trigger merely because it could be rewritten as a prompt."},
+    {"id": "TE06", "lang": "en", "user_message": "Make something better for my project.", "expected": "invoke", "reason": "Neither the project nor the object or goal of improvement is specified."},
+    {"id": "TE07", "lang": "en", "user_message": "Compare the two proposals using the criteria I chose and tell me which wins.", "expected": "invoke", "reason": "The proposals and chosen criteria are absent, so key information is missing."},
+    {"id": "TE08", "lang": "en", "user_message": "Optimize this prompt: explain how a seed becomes a plant to a young reader using a simple analogy.", "expected": "invoke", "reason": "Explicit prompt optimization request, despite a clear underlying task."},
+    {"id": "TE09", "lang": "en", "user_message": "$prompt-optimizer Create a five-question quiz about basic geometric shapes with an answer key.", "expected": "invoke", "reason": "Explicit dollar-prefixed skill invocation."},
+    {"id": "TE10", "lang": "en", "user_message": "/prompt-optimizer Describe an imaginary underwater library in one paragraph.", "expected": "invoke", "reason": "Explicit slash-command skill invocation."}
+  ]
+}

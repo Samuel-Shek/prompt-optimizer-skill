@@ -10,7 +10,9 @@ deployment cases, with identical material as user input; report it separately.
 
 Outputs go to --out. Judging is done afterwards by a person (or a reviewer that
 reads the saved files); this script only records outputs and a few mechanical
-checks. Usage:
+checks. Offline fidelity review is recorded separately in each case's `fidelity`
+field and summarized; its findings do not affect mechanical checks or exit codes.
+Usage:
 
     python3 run_eval.py --out DIR [--lang zh|en] [--ids C01,C02] [--opt-model opus] [--target-model sonnet]
 
@@ -30,6 +32,18 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+
+if __package__:
+    from .fidelity import check_fidelity, summarize
+else:
+    # File-based test loaders do not add evals to sys.path; load this sibling explicitly.
+    import importlib.util
+
+    _fidelity_spec = importlib.util.spec_from_file_location(
+        "_prompt_optimizer_fidelity", Path(__file__).with_name("fidelity.py"))
+    _fidelity = importlib.util.module_from_spec(_fidelity_spec)
+    _fidelity_spec.loader.exec_module(_fidelity)
+    check_fidelity, summarize = _fidelity.check_fidelity, _fidelity.summarize
 
 HERE = Path(__file__).resolve().parent
 SKILL = HERE.parent / "SKILL.md"
@@ -498,6 +512,7 @@ def main():
                 # Replaces any stale generated pair on resume with an explicit invalid marker.
                 (out / f"{cid}{sfx}.blind.md").write_text(L["no_pair"], encoding="utf-8")
         entry["mechanical"] = mechanical_checks(c, opt[cid]["text"], outputs, args.lang) if successful(opt[cid]) else {}
+        entry["fidelity"] = check_fidelity(c, opt[cid]["text"], args.lang)
         entry["mechanical_status"] = "recorded; signal hits require review" if successful(opt[cid]) else "skipped: optimizer_failed"
         entry["target_checks_recorded_for"] = list(outputs)
         manifest["cases"][cid] = entry
@@ -506,6 +521,7 @@ def main():
     atomic_json(out / "blind_key.json", blind_key)
     atomic_json(out / "manifest.json", manifest)
     print(json.dumps({cid: {"status": e["status"], "valid_pairs": e["valid_pairs"], "mech": e["mechanical"]} for cid, e in manifest["cases"].items()}, ensure_ascii=False, indent=1))
+    print("fidelity: " + json.dumps(summarize({cid: e["fidelity"] for cid, e in manifest["cases"].items()}), ensure_ascii=False))
     return 1 if errors else 0
 
 

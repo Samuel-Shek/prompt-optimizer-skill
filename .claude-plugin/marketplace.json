@@ -9,7 +9,7 @@
     {
       "name": "prompt-optimizer",
       "description": "提示词优化器 / Prompt Optimizer: turn rough requests or existing prompts into copy-ready prompts, replying in your language.",
-      "version": "4.1.1",
+      "version": "4.1.2",
       "category": "productivity",
       "source": "./",
       "strict": false,
@@ -18,7 +18,7 @@
     {
       "name": "prompt-optimizer-en",
       "description": "Legacy name, kept so existing installs keep updating. Since v4.1.0 it installs the same merged skill as prompt-optimizer (skill name prompt-optimizer). Install only one of the two.",
-      "version": "4.1.1",
+      "version": "4.1.2",
       "category": "productivity",
       "source": "./",
       "strict": false,
