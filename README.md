@@ -6,13 +6,13 @@
 
 Turn a rough request, or a prompt you already have, into one prompt you can paste straight into an AI. It only rewrites the prompt. It doesn't do the task inside it for you.
 
-Current version **v4.1.0** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
+Current version **v4.1.1** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
 
 This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
 
 **One edition for every language (since v4.1.0).** There is a single skill, `prompt-optimizer`, at the repository root. It replies in the language you write in: English requests get English labels and notes, Chinese requests get Chinese ones, and other languages are handled the same way. Your own wording and any material you paste are never translated. The rule file itself is written in Chinese; that doesn't change the language of the output. The separate English edition (`prompt-optimizer-en`, v3.5.3 rules) was removed in v4.1.0. If you used it, see [Upgrading from the English edition](#upgrading-from-the-english-edition-prompt-optimizer-en).
 
-**Manual use only (since v4.0.0).** It should run only when you explicitly ask for it. In Codex this is enforced by `allow_implicit_invocation: false` in `agents/openai.yaml`; in Claude Code and other hosts the skill description tells the model to use it only on request (if you want Claude Code to allow only the slash command, add `disable-model-invocation: true` to the frontmatter of your installed copy). In blind evaluations on strong models, optimizing a request first gave no stable quality gain over asking the model directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md).
+**Automatic, but only when needed (since v4.1.1).** Each time you ask a question or give a task, the AI first judges for itself: is the request clear enough, and can it answer well directly with its own ability and what it knows about you? If so, it just answers and doesn't call the optimizer. It calls the optimizer automatically only when the request is clearly vague or missing key information, or when you explicitly ask it to optimize a prompt. When it does, your original words are kept, its additions are only suggestions, and it doesn't make up anything you didn't say. In Codex, `allow_implicit_invocation: true` in `agents/openai.yaml` allows this automatic use; in Claude Code and other hosts the skill description asks the model to make the same judgement (if you want Claude Code to allow only the slash command, add `disable-model-invocation: true` to the frontmatter of your installed copy). Why not every time: in blind evaluations on strong models, optimizing a clear request first gave no stable quality gain over asking directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md). v4.0.0–v4.1.0 described it as manual use only; that was a recording mistake, corrected in v4.1.1.
 
 ## What it does
 
@@ -24,7 +24,7 @@ This is a Skill: a set of working instructions written for an AI to read. You us
 
 If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
 
-In tools that do work on their own, such as Claude Code and Codex, you can also explicitly ask the AI to run it on a complicated request first and then carry on with the task. The AI shouldn't call it on its own (manual use only; see above for how each host enforces this).
+In tools that do work on their own, such as Claude Code and Codex, the AI calls it automatically when a task is clearly vague or missing key information (asking you for anything essential that's missing), then carries on with the task; clear tasks are done directly without it. You can also explicitly ask the AI to run it first and then carry on. Either way the prompt it produces is for the AI's own use, and what you get back is the finished task.
 
 ## What the output looks like
 
@@ -62,6 +62,8 @@ This is a simple task, so there are no supplementary notes. A recorded real run 
 
 ## Install
 
+**Check for similar features first (this applies when an AI installs it for you, too).** Before installing, check whether the tool already has a skill named `prompt-optimizer`, or any other prompt-optimization skill, plugin or custom instruction with a similar job under a different name (for example a prompt-enhancer skill, or a global rule like "rewrite my prompt before doing the task"). If you find one, tell the user what you found and where, and let them decide whether to replace it, keep it, or run both. Don't overwrite it, and don't quietly install a second copy alongside it.
+
 **Claude Code (plugin marketplace)**
 
 ```text
@@ -74,16 +76,16 @@ This is a simple task, so there are no supplementary notes. A recorded real run 
 1. Download:
 
    ```bash
-   git clone --branch v4.1.0 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
+   git clone --branch v4.1.1 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
-   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.0).
+   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.1).
 
-2. Copy the whole `prompt-optimizer` folder into your AI tool's skills folder, keeping its `references/` and `agents/` subfolders. Common locations: `~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex. Check your tool's current docs.
+2. Copy the whole `prompt-optimizer` folder into your AI tool's skills folder, keeping its `references/` and `agents/` subfolders. Common locations: `~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex. Check your tool's current docs. If a skill with the same name or a similar job is already installed, check its version and confirm with the user first (see above), so you don't overwrite changes they made.
 
 3. Start a new session so the tool loads the skill.
 
-**ChatGPT GPTs, Claude Projects or any chat app:** paste the contents of [`SKILL.md`](SKILL.md) into the custom instructions (add [`references/methods.md`](references/methods.md) if you want its optional methods). Then ask explicitly, for example "optimize this prompt: …"; review requests and ordinary chat are still answered as such.
+**ChatGPT GPTs, Claude Projects or any chat app:** paste the contents of [`SKILL.md`](SKILL.md) into the custom instructions (add [`references/methods.md`](references/methods.md) if you want its optional methods). Clear questions are answered directly; it steps in when a request is clearly vague or missing key information, or when you ask, for example "optimize this prompt: …". Review requests and ordinary chat are still answered as such.
 
 ## Upgrading from the English edition (`prompt-optimizer-en`)
 
@@ -161,9 +163,10 @@ The most useful feedback is a real case where it got something wrong. [Open a ba
 
 ## Versions
 
-- **v4.1.0 (current):** Chinese and English editions merged into one skill with one rule set (the v4.0.4 rules) and an explicit language rule: reply in the user's language, including languages other than Chinese and English; your wording and material are never translated. `prompt-optimizer-en/` and the old bilingual runner were removed; one runner now covers both exam files. This is a structural merge only: no new real-model quality tests were run. See [CHANGELOG.md](CHANGELOG.md).
+- **v4.1.1 (current):** corrects how it is invoked: from "manual use only" back to automatic use when needed. Clear requests are answered directly; it is called automatically only for clearly vague requests, requests missing key information, or when you ask to optimize a prompt. `allow_implicit_invocation` is now `true`. The install section now asks you (or the installing AI) to check for same-named and similar prompt-optimization features and ask before installing. The optimization rules themselves are unchanged. See [CHANGELOG.md](CHANGELOG.md).
+- **v4.1.0:** Chinese and English editions merged into one skill with one rule set (the v4.0.4 rules) and an explicit language rule: reply in the user's language, including languages other than Chinese and English; your wording and material are never translated. `prompt-optimizer-en/` and the old bilingual runner were removed; one runner now covers both exam files. This is a structural merge only: no new real-model quality tests were run. See [CHANGELOG.md](CHANGELOG.md).
 - **v4.0.4:** four small revisions (4.0.1–4.0.4) to the Chinese edition, verified statically and offline.
-- **v4.0.0:** rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; manual use only. Blind evaluations on strong models showed no stable quality gain over asking directly.
+- **v4.0.0:** rewritten to keep your wording verbatim, with the optimizer's own additions kept subordinate to it; it was set to manual use only (changed back to automatic-when-needed in v4.1.1). Blind evaluations on strong models showed no stable quality gain over asking directly.
 - **v3.5.x:** earlier rules, including the English edition `prompt-optimizer-en` (v3.5.1–v3.5.3).
 
 Full history: [CHANGELOG.md](CHANGELOG.md) (Chinese).
