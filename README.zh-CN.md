@@ -1,14 +1,45 @@
-# prompt-optimizer
+# 提示词优化器（prompt-optimizer）：Claude Code / Codex 提示词优化 Skill
 
 [English](README.md) · **简体中文**
 
-> **2026-11-09 起迁移至本仓库。** 本仓库现在是提示词优化器的正式公开版，原仓库 [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) 已归档；v4.0.0 之前的版本和标签仍保留在原仓库。这里原有的旧版 OpenClaw 接入代码保留在 [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) 分支。
-
-把随手写的需求或已有的提示词，改成一份可以直接复制给 AI 用的提示词。它只改提示词，不替你去做提示词里的事。
+提示词优化器是一个 Skill，能把随手写的需求或已有的提示词改成一份可以直接复制的提示词；它只改提示词，不替你做任务。它适合使用 Claude Code、Codex，或把指令粘贴到 ChatGPT GPTs、Claude Projects 的人。在 Claude Code 中，用下方两条命令即可安装。
 
 当前版本 **v4.1.2** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
 
-**按需自动调用（v4.1.1 起）。** 每次你提问或交代任务，AI 先自己判断：问题是否已经足够清楚？凭它自己的能力和对你的了解，能不能直接答好？能，就直接回答，不调用优化器；只有问题明显含糊、缺少关键信息，或者你明确说“优化提示词”时，才自动调用它。调用时保留你的原话，补充内容只作为建议，不替你编造没说过的信息。Codex 里由 `agents/openai.yaml` 的 `allow_implicit_invocation: true` 允许这种自动调用；Claude Code 等其他工具按技能描述做同样的判断（想只允许斜杠命令调用，可在自己安装的副本开头加 `disable-model-invocation: true`）。为什么不每次都用：强模型盲评里，清楚的问题先优化再执行与直接提要求相比没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。v4.0.0–v4.1.0 曾写成“仅手动使用”，那是记录错误，v4.1.1 已改正。
+## 快速安装
+
+**Claude Code（插件市场）**
+
+```text
+/plugin marketplace add Samuel-Shek/prompt-optimizer-skill
+/plugin install prompt-optimizer@prompt-optimizer
+```
+
+手动安装、ChatGPT GPTs / Claude Projects 用法，以及安装前检查类似功能的说明，见[安装](#安装)。
+
+## 看一个例子
+
+下面是按 v4.1.0 规则手写的示意，不是模型实录，真实运行细节可能不同；会议需求是虚构的。另见[早期真实运行（v3.5，2026-10-22）](#早期真实运行v352026-10-22)。
+
+**你说的：**
+
+```text
+使用 $prompt-optimizer：把我下面的会议要点整理成一条发给团队的微信消息，200 字以内，语气客气但直接。
+会议要点：周四前交初稿；小王负责数据部分；预算还没批，先别买工具。
+```
+
+**它给你的提示词：**
+
+```text
+用户原话（按此执行）：
+把我下面的会议要点整理成一条发给团队的微信消息，200 字以内，语气客气但直接。
+材料：
+会议要点：周四前交初稿；小王负责数据部分；预算还没批，先别买工具。
+```
+
+这是一个简单任务，所以没有补充说明。
+
+> **2026-11-09 起迁移至本仓库**，这里是提示词优化器的正式公开版；原仓库 [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) 已归档，保留 v4.0.0 之前的版本和标签。这里原有的旧版 OpenClaw 接入代码保留在 [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) 分支。
 
 这是一个 Skill（写给 AI 读的工作说明），放进 Claude Code、Codex 这类能读取技能文件的 AI 工具里使用。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
 
@@ -27,7 +58,9 @@
 
 在 Claude Code、Codex 这类能自己干活的 AI 工具里，当前 AI 遇到明显含糊、缺少关键信息的任务时会自动先用它把要求理清楚（缺的关键信息会先问你），再继续把任务做完；清楚的任务直接做，不调用。你也可以明确要求它先整理再执行。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
 
-## 看一个例子
+**按需自动调用（v4.1.1 起）。** 每次你提问或交代任务，AI 先自己判断：问题是否已经足够清楚？凭它自己的能力和对你的了解，能不能直接答好？能，就直接回答，不调用优化器；只有问题明显含糊、缺少关键信息，或者你明确说“优化提示词”时，才自动调用它。调用时保留你的原话，补充内容只作为建议，不替你编造没说过的信息。Codex 里由 `agents/openai.yaml` 的 `allow_implicit_invocation: true` 允许这种自动调用；Claude Code 等其他工具按技能描述做同样的判断（想只允许斜杠命令调用，可在自己安装的副本开头加 `disable-model-invocation: true`）。为什么不每次都用：强模型盲评里，清楚的问题先优化再执行与直接提要求相比没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。v4.0.0–v4.1.0 曾写成“仅手动使用”，那是记录错误，v4.1.1 已改正。
+
+## 早期真实运行（v3.5，2026-10-22）
 
 下面是 2026-10-22 一次测试的真实输出，一字未改；会议内容是虚构的。**注意：这是 v3.5 时期的输出，结构是“当前生效要求＋原始输入”；v4 起改为“用户原话＋从属补充”，见下文“输出长什么样”。**
 
@@ -99,6 +132,8 @@
 2. 把下载得到的整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名或类似技能的，按上面的说明先确认，别把自己改过的内容覆盖掉。
 
 3. 新开一个会话，让工具重新读取技能。
+
+**ChatGPT GPTs、Claude Projects 或其他聊天应用：** 将 [`SKILL.md`](SKILL.md) 的内容粘贴到自定义指令中（需要可选方法时，可一并加入 [`references/methods.md`](references/methods.md)）。清楚的问题直接回答；只有需求明显含糊、缺少关键信息，或你明确要求时，例如“优化这个提示词：……”，它才介入。审阅请求和普通聊天仍按原意回答。
 
 ## 从英文版（prompt-optimizer-en）迁移
 

@@ -1,42 +1,21 @@
-# prompt-optimizer
+# Prompt Optimizer: a Claude Code and Codex skill that turns rough requests into copy-ready prompts
 
 **English** · [简体中文](README.zh-CN.md)
 
-> **Moved here on 2026-11-09.** This repository is now the official home of Prompt Optimizer; [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) is archived. Releases before v4.0.0 and their tags stay in that archived repository. The old OpenClaw integration code that used to live here is kept on the [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) branch.
-
-Turn a rough request, or a prompt you already have, into one prompt you can paste straight into an AI. It only rewrites the prompt. It doesn't do the task inside it for you.
+Prompt Optimizer is a Skill that turns a rough request or an existing prompt into one copy-ready prompt; it only rewrites the prompt and doesn't do the task. It's for people using Claude Code or Codex, or pasting instructions into ChatGPT GPTs or Claude Projects. In Claude Code, install it with the two commands below.
 
 Current version **v4.1.2** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
 
-This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
+## Quick install
 
-**One edition for every language (since v4.1.0).** There is a single skill, `prompt-optimizer`, at the repository root. It replies in the language you write in: English requests get English labels and notes, Chinese requests get Chinese ones, and other languages are handled the same way. Your own wording and any material you paste are never translated. The rule file itself is written in Chinese; that doesn't change the language of the output. The separate English edition (`prompt-optimizer-en`, v3.5.3 rules) was removed in v4.1.0. If you used it, see [Upgrading from the English edition](#upgrading-from-the-english-edition-prompt-optimizer-en).
+**Claude Code (plugin marketplace)**
 
-**Automatic, but only when needed (since v4.1.1).** Each time you ask a question or give a task, the AI first judges for itself: is the request clear enough, and can it answer well directly with its own ability and what it knows about you? If so, it just answers and doesn't call the optimizer. It calls the optimizer automatically only when the request is clearly vague or missing key information, or when you explicitly ask it to optimize a prompt. When it does, your original words are kept, its additions are only suggestions, and it doesn't make up anything you didn't say. In Codex, `allow_implicit_invocation: true` in `agents/openai.yaml` allows this automatic use; in Claude Code and other hosts the skill description asks the model to make the same judgement (if you want Claude Code to allow only the slash command, add `disable-model-invocation: true` to the frontmatter of your installed copy). Why not every time: in blind evaluations on strong models, optimizing a clear request first gave no stable quality gain over asking directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md). v4.0.0–v4.1.0 described it as manual use only; that was a recording mistake, corrected in v4.1.1.
+```text
+/plugin marketplace add Samuel-Shek/prompt-optimizer-skill
+/plugin install prompt-optimizer@prompt-optimizer
+```
 
-## What it does
-
-- **Keeps your wording verbatim.** Your request is copied word for word into a "User's exact words" section that the target AI follows. Numbers, dates, names, file names, prohibitions and relative times such as "by next Wednesday" stay exactly as you wrote them.
-- **Keeps its own additions subordinate.** Anything the optimizer adds (steps, checks, how to handle missing information) goes into "Supplementary notes", which opens by saying your exact words win any conflict. It doesn't add word counts, formats, prohibitions or acceptance criteria you didn't ask for.
-- **Doesn't make up missing information.** If the target AI can look something up, the prompt says where. If only you can supply it, it leaves a placeholder such as `{{TO FILL: batch number | e.g. a code like AB-123}}`. Real conflicts or gaps go into "To confirm", each with what to do if you don't answer.
-- **Tells instructions apart from material.** If text you paste in says "ignore all previous rules", it is kept as material and treated as data, not as an order.
-- **Remembers across edits.** Your latest explicit change overrides the old requirement; anything you haven't withdrawn stays in force.
-
-If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
-
-In tools that do work on their own, such as Claude Code and Codex, the AI calls it automatically when a task is clearly vague or missing key information (asking you for anything essential that's missing), then carries on with the task; clear tasks are done directly without it. You can also explicitly ask the AI to run it first and then carry on. Either way the prompt it produces is for the AI's own use, and what you get back is the finished task.
-
-## What the output looks like
-
-By default you get one copyable prompt in a single code block, split by plain-text labels:
-
-- **Task:** an optional one-line excerpt taken from your own words;
-- **User's exact words (follow these):** your request, copied verbatim;
-- **Material:** anything you provided to be processed, kept as is;
-- **Supplementary notes:** the optimizer's suggestions, starting with a fixed line saying your exact words prevail;
-- **To confirm:** only real gaps or conflicts, each with a "When executing" fallback.
-
-Empty sections are left out. Simple tasks usually get only "User's exact words" and "Material".
+See [Install](#install) for manual installation, ChatGPT GPTs / Claude Projects usage, and the check for similar features before installing.
 
 ## Example
 
@@ -59,6 +38,38 @@ Meeting notes: first draft due before Thursday; Alex owns the data section; budg
 ```
 
 This is a simple task, so there are no supplementary notes. A recorded real run from 2026-10-22 (v3.5 era, older output structure) is in the [v4.0.4 README](https://github.com/Samuel-Shek/prompt-optimizer-skill/blob/v4.0.4/README.md#example).
+
+> **Moved here on 2026-11-09:** this is now the official home of Prompt Optimizer; [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) is archived and keeps releases and tags before v4.0.0. The old OpenClaw integration code remains on the [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) branch.
+
+This is a Skill: a set of working instructions written for an AI to read. You use it inside AI tools that load skill files, such as Claude Code and Codex. It isn't a standalone app or a new model, and it needs no extra API key or background service.
+
+**One edition for every language (since v4.1.0).** There is a single skill, `prompt-optimizer`, at the repository root. It replies in the language you write in: English requests get English labels and notes, Chinese requests get Chinese ones, and other languages are handled the same way. Your own wording and any material you paste are never translated. The rule file itself is written in Chinese; that doesn't change the language of the output. The separate English edition (`prompt-optimizer-en`, v3.5.3 rules) was removed in v4.1.0. If you used it, see [Upgrading from the English edition](#upgrading-from-the-english-edition-prompt-optimizer-en).
+
+## What it does
+
+- **Keeps your wording verbatim.** Your request is copied word for word into a "User's exact words" section that the target AI follows. Numbers, dates, names, file names, prohibitions and relative times such as "by next Wednesday" stay exactly as you wrote them.
+- **Keeps its own additions subordinate.** Anything the optimizer adds (steps, checks, how to handle missing information) goes into "Supplementary notes", which opens by saying your exact words win any conflict. It doesn't add word counts, formats, prohibitions or acceptance criteria you didn't ask for.
+- **Doesn't make up missing information.** If the target AI can look something up, the prompt says where. If only you can supply it, it leaves a placeholder such as `{{TO FILL: batch number | e.g. a code like AB-123}}`. Real conflicts or gaps go into "To confirm", each with what to do if you don't answer.
+- **Tells instructions apart from material.** If text you paste in says "ignore all previous rules", it is kept as material and treated as data, not as an order.
+- **Remembers across edits.** Your latest explicit change overrides the old requirement; anything you haven't withdrawn stays in force.
+
+If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
+
+In tools that do work on their own, such as Claude Code and Codex, the AI calls it automatically when a task is clearly vague or missing key information (asking you for anything essential that's missing), then carries on with the task; clear tasks are done directly without it. You can also explicitly ask the AI to run it first and then carry on. Either way the prompt it produces is for the AI's own use, and what you get back is the finished task.
+
+**Automatic, but only when needed (since v4.1.1).** Each time you ask a question or give a task, the AI first judges for itself: is the request clear enough, and can it answer well directly with its own ability and what it knows about you? If so, it just answers and doesn't call the optimizer. It calls the optimizer automatically only when the request is clearly vague or missing key information, or when you explicitly ask it to optimize a prompt. When it does, your original words are kept, its additions are only suggestions, and it doesn't make up anything you didn't say. In Codex, `allow_implicit_invocation: true` in `agents/openai.yaml` allows this automatic use; in Claude Code and other hosts the skill description asks the model to make the same judgement (if you want Claude Code to allow only the slash command, add `disable-model-invocation: true` to the frontmatter of your installed copy). Why not every time: in blind evaluations on strong models, optimizing a clear request first gave no stable quality gain over asking directly, and it cost more calls and tokens. See [CHANGELOG.md](CHANGELOG.md). v4.0.0–v4.1.0 described it as manual use only; that was a recording mistake, corrected in v4.1.1.
+
+## What the output looks like
+
+By default you get one copyable prompt in a single code block, split by plain-text labels:
+
+- **Task:** an optional one-line excerpt taken from your own words;
+- **User's exact words (follow these):** your request, copied verbatim;
+- **Material:** anything you provided to be processed, kept as is;
+- **Supplementary notes:** the optimizer's suggestions, starting with a fixed line saying your exact words prevail;
+- **To confirm:** only real gaps or conflicts, each with a "When executing" fallback.
+
+Empty sections are left out. Simple tasks usually get only "User's exact words" and "Material".
 
 ## Install
 
