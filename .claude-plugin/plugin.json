@@ -1,0 +1,12 @@
+{
+  "name": "prompt-optimizer",
+  "version": "4.1.2",
+  "description": "提示词优化器 / Prompt Optimizer: turn rough requests or existing prompts into copy-ready prompts, replying in your language.",
+  "author": {
+    "name": "Samuel-Shek",
+    "url": "https://github.com/Samuel-Shek"
+  },
+  "homepage": "https://github.com/Samuel-Shek/prompt-optimizer-skill",
+  "repository": "https://github.com/Samuel-Shek/prompt-optimizer-skill",
+  "license": "MIT"
+}
