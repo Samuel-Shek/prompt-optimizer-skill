@@ -17,6 +17,8 @@ Current version **v4.1.2** · MIT license · [Changelog](CHANGELOG.md) · [How i
 
 See [Install](#install) for manual installation, ChatGPT GPTs / Claude Projects usage, and the check for similar features before installing.
 
+After you try it, suggestions are welcome in [Discussions](https://github.com/Samuel-Shek/prompt-optimizer-skill/discussions). For a case where it went wrong, [open a bad-case issue](https://github.com/Samuel-Shek/prompt-optimizer-skill/issues/new?template=bad-case.yml).
+
 ## Example
 
 The example below is a hand-written illustration of the v4.1.0 structure, written by applying the rules to a fictional request. It is not a recorded model output, and a real run may differ in details.
