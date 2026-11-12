@@ -17,6 +17,8 @@
 
 手动安装、ChatGPT GPTs / Claude Projects 用法，以及安装前检查类似功能的说明，见[安装](#安装)。
 
+试用后有建议，欢迎到 [Discussions](https://github.com/Samuel-Shek/prompt-optimizer-skill/discussions) 留言；失败案例请[提交 Issue](https://github.com/Samuel-Shek/prompt-optimizer-skill/issues/new?template=bad-case.yml)。
+
 ## 看一个例子
 
 下面是按 v4.1.0 规则手写的示意，不是模型实录，真实运行细节可能不同；会议需求是虚构的。另见[早期真实运行（v3.5，2026-10-22）](#早期真实运行v352026-10-22)。
