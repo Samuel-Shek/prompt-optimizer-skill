@@ -1,12 +1,14 @@
-# 提示词优化器（prompt-optimizer）：Claude Code / Codex 提示词优化 Skill
+# 提示词优化器（prompt-optimizer）：给任意 AI agent 用的提示词优化 Skill
 
 [English](README.md) · **简体中文**
 
-提示词优化器是一个 Skill，能把随手写的需求或已有的提示词改成一份可以直接复制的提示词；它只改提示词，不替你做任务。它适合使用 Claude Code、Codex，或把指令粘贴到 ChatGPT GPTs、Claude Projects 的人。在 Claude Code 中，用下方两条命令即可安装。
+提示词优化器是一个 Skill，给任意能加载 Skill 的 AI agent 用。它把随手写的需求或已有的提示词整理成一份可以直接复制的提示词。它只改提示词，不替你做任务。你的原话逐字保留，它不编造你没写的信息。需求已经清楚时，agent 直接去做。只有需求明显含糊、缺少关键信息，或你明确要求时，才按需自动优化。工具不能安装 Skill 时，把 [`SKILL.md`](SKILL.md) 贴进自定义指令。说明文档有英文和简体中文；技能本身只有一份，按你书写的语言回复。
 
 当前版本 **v4.1.2** · MIT 许可 · [版本记录](CHANGELOG.md) · [测试方法](docs/TESTING.md) · [验证记录](VALIDATION.md)
 
 ## 快速安装
+
+下面两条命令是 Claude Code 插件市场的装法。
 
 **Claude Code（插件市场）**
 
@@ -15,7 +17,7 @@
 /plugin install prompt-optimizer@prompt-optimizer
 ```
 
-手动安装、ChatGPT GPTs / Claude Projects 用法，以及安装前检查类似功能的说明，见[安装](#安装)。
+Codex 和其他能加载 Skill 的 agent，手动安装步骤见[安装](#安装)。不能装 Skill 的，把 [`SKILL.md`](SKILL.md) 贴进自定义指令。安装前检查类似功能的说明也在那一节。
 
 试用后有建议，欢迎到 [Discussions](https://github.com/Samuel-Shek/prompt-optimizer-skill/discussions) 留言；失败案例请[提交 Issue](https://github.com/Samuel-Shek/prompt-optimizer-skill/issues/new?template=bad-case.yml)。
 
@@ -43,7 +45,7 @@
 
 > **2026-11-09 起迁移至本仓库**，这里是提示词优化器的正式公开版；原仓库 [Samuel-Shek/prompt-optimizer](https://github.com/Samuel-Shek/prompt-optimizer) 已归档，保留 v4.0.0 之前的版本和标签。这里原有的旧版 OpenClaw 接入代码保留在 [`legacy/openclaw`](https://github.com/Samuel-Shek/prompt-optimizer-skill/tree/legacy/openclaw) 分支。
 
-这是一个 Skill（写给 AI 读的工作说明），放进 Claude Code、Codex 这类能读取技能文件的 AI 工具里使用。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
+这是一个 Skill（写给 AI 读的工作说明）。任意能读取技能文件的 AI agent 都能用，Claude Code 和 Codex 是其中两种。它不是独立软件，也不是新模型，不需要额外的 API Key 或后台服务。
 
 **自 v4.1.0 起只有一个版本，适用所有语言。** 仓库根目录的 `SKILL.md` 就是唯一的技能（技能名 `prompt-optimizer`）。它跟随你的语言回复：中文需求用中文标签和说明，英文需求用英文，其他语言同样照此处理；你的原话和贴进来的材料永远不翻译。原来的英文版 `prompt-optimizer-en/`（v3.5.3 规则）已在 v4.1.0 删除，用过它的请看下文[从英文版迁移](#从英文版prompt-optimizer-en迁移)。
 
@@ -58,7 +60,7 @@
 
 只想听意见时说“先评价，别改”，它只指出问题，不重写。
 
-在 Claude Code、Codex 这类能自己干活的 AI 工具里，当前 AI 遇到明显含糊、缺少关键信息的任务时会自动先用它把要求理清楚（缺的关键信息会先问你），再继续把任务做完；清楚的任务直接做，不调用。你也可以明确要求它先整理再执行。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
+加载了这个 Skill、并且能自己干活的 agent，遇到明显含糊、缺少关键信息的任务时会自动先用它把要求理清楚（缺的关键信息会先问你），再继续把任务做完。清楚的任务直接做，不调用。你也可以明确要求它先整理再执行。这时它整理出的提示词只给当前 AI 用，你最后拿到的是任务结果。
 
 **按需自动调用（v4.1.1 起）。** 每次你提问或交代任务，AI 先自己判断：问题是否已经足够清楚？凭它自己的能力和对你的了解，能不能直接答好？能，就直接回答，不调用优化器；只有问题明显含糊、缺少关键信息，或者你明确说“优化提示词”时，才自动调用它。调用时保留你的原话，补充内容只作为建议，不替你编造没说过的信息。Codex 里由 `agents/openai.yaml` 的 `allow_implicit_invocation: true` 允许这种自动调用；Claude Code 等其他工具按技能描述做同样的判断（想只允许斜杠命令调用，可在自己安装的副本开头加 `disable-model-invocation: true`）。为什么不每次都用：强模型盲评里，清楚的问题先优化再执行与直接提要求相比没有稳定的质量提升，调用次数和 token 用量还会增加，详见[版本记录](CHANGELOG.md)。v4.0.0–v4.1.0 曾写成“仅手动使用”，那是记录错误，v4.1.1 已改正。
 
@@ -113,7 +115,9 @@
 
 **安装前先查有没有类似功能（让 AI 帮你装时也一样）。** 先检查当前工具里是否已经装了同名的 `prompt-optimizer`，以及任何功能类似的提示词优化技能、插件或自定义指令（名字不同也算，例如 prompt-enhancer、提示词改写、“先帮我优化提示词再执行”这类全局规则）。发现了就先告诉用户找到了什么、在哪里，由用户决定替换、保留还是并存；不要直接覆盖，也不要不打招呼地另装一份。
 
-**Claude Code 一键安装（插件市场）**
+下面是能加载 Skill 的 agent 的几种装法，以及不能安装时把 `SKILL.md` 贴进自定义指令的做法。
+
+**Claude Code（插件市场）**
 
 ```text
 /plugin marketplace add Samuel-Shek/prompt-optimizer-skill
@@ -131,11 +135,11 @@
 
    也可以在[发布页](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.2)下载压缩包。
 
-2. 把下载得到的整个 `prompt-optimizer` 文件夹放进 AI 工具的技能目录，保留里面的 `references/` 和 `agents/`。常见位置：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`，以各工具当前文档为准。已经装过同名或类似技能的，按上面的说明先确认，别把自己改过的内容覆盖掉。
+2. 把下载得到的整个 `prompt-optimizer` 文件夹放进该 agent 的技能目录，保留里面的 `references/` 和 `agents/`。常见位置包括：Claude Code 是 `~/.claude/skills/`，Codex 是 `~/.agents/skills/`，WorkBuddy 是 `~/.workbuddy/skills/`。其他 agent 用各自的技能目录，以该工具当前文档为准。已经装过同名或类似技能的，按上面的说明先确认，别把自己改过的内容覆盖掉。
 
 3. 新开一个会话，让工具重新读取技能。
 
-**ChatGPT GPTs、Claude Projects 或其他聊天应用：** 将 [`SKILL.md`](SKILL.md) 的内容粘贴到自定义指令中（需要可选方法时，可一并加入 [`references/methods.md`](references/methods.md)）。清楚的问题直接回答；只有需求明显含糊、缺少关键信息，或你明确要求时，例如“优化这个提示词：……”，它才介入。审阅请求和普通聊天仍按原意回答。
+**工具不能安装 Skill 时**（例如 ChatGPT GPTs、Claude Projects 或其他聊天应用）：将 [`SKILL.md`](SKILL.md) 的内容粘贴到自定义指令中（需要可选方法时，可一并加入 [`references/methods.md`](references/methods.md)）。清楚的问题直接回答；只有需求明显含糊、缺少关键信息，或你明确要求时，例如“优化这个提示词：……”，它才介入。审阅请求和普通聊天仍按原意回答。
 
 ## 从英文版（prompt-optimizer-en）迁移
 
