@@ -4,7 +4,7 @@
 
 Prompt Optimizer is a Skill for any AI agent that can load Skills. It turns a rough request or an existing prompt into one copy-ready prompt. It only rewrites the prompt and doesn't do the task. It keeps your wording verbatim and doesn't invent missing facts. If the request is already clear, the agent just does the work. It auto-optimizes only when the request is clearly vague or missing key information, or when you explicitly ask. If a tool can't install Skills, paste [`SKILL.md`](SKILL.md) into its custom instructions. These docs are in English and Simplified Chinese; there is one skill, and it replies in the language you write in.
 
-Current version **v4.1.2** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
+Current version **v4.1.3** · MIT license · [Changelog](CHANGELOG.md) · [How it was tested](docs/TESTING.md) · [Validation (Chinese)](VALIDATION.md)
 
 ## Quick install
 
@@ -54,7 +54,7 @@ This is a Skill: a set of working instructions written for an AI to read. Any ag
 - **Keeps your wording verbatim.** Your request is copied word for word into a "User's exact words" section that the target AI follows. Numbers, dates, names, file names, prohibitions and relative times such as "by next Wednesday" stay exactly as you wrote them.
 - **Keeps its own additions subordinate.** Anything the optimizer adds (steps, checks, how to handle missing information) goes into "Supplementary notes", which opens by saying your exact words win any conflict. It doesn't add word counts, formats, prohibitions or acceptance criteria you didn't ask for.
 - **Doesn't make up missing information.** If the target AI can look something up, the prompt says where. If only you can supply it, it leaves a placeholder such as `{{TO FILL: batch number | e.g. a code like AB-123}}`. Real conflicts or gaps go into "To confirm", each with what to do if you don't answer.
-- **Tells instructions apart from material.** If text you paste in says "ignore all previous rules", it is kept as material and treated as data, not as an order.
+- **Tells instructions apart from material.** Pasted text that attempts to override instructions is kept as material and treated as data, not as an order.
 - **Remembers across edits.** Your latest explicit change overrides the old requirement; anything you haven't withdrawn stays in force.
 
 If you only want feedback, say "review it, don't rewrite". It will point out problems without rewriting.
@@ -93,10 +93,10 @@ Below are install options for agents that can load Skills, plus a custom-instruc
 1. Download:
 
    ```bash
-   git clone --branch v4.1.2 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
+   git clone --branch v4.1.3 --depth 1 https://github.com/Samuel-Shek/prompt-optimizer-skill.git prompt-optimizer
    ```
 
-   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.2).
+   Or download the archive from the [release page](https://github.com/Samuel-Shek/prompt-optimizer-skill/releases/tag/v4.1.3).
 
 2. Copy the whole `prompt-optimizer` folder into the agent's skills folder, keeping its `references/` and `agents/` subfolders. Common locations include `~/.claude/skills/` for Claude Code and `~/.agents/skills/` for Codex. Other agents use their own skills folder; check that tool's current docs. If a skill with the same name or a similar job is already installed, check its version and confirm with the user first (see above), so you don't overwrite changes they made.
 
@@ -180,7 +180,8 @@ The most useful feedback is a real case where it got something wrong. [Open a ba
 
 ## Versions
 
-- **v4.1.2 (current):** supplementary notes cannot introduce quotations or facts absent from the user’s words and material; quotation marks are reserved for verbatim text. Adds offline fidelity checks (numbers, dates, quoted content and file names counted by occurrence; material retained; new items in notes only flagged for review), a separate `fidelity` field in `run_eval.py`, and a 20-case Chinese/English trigger mini-exam. Fixes imports when the runner is loaded by file path. Trigger rules, description and `allow_implicit_invocation` are unchanged. See the [test record](docs/testing/v4.1.2-20261110/README.md) and [evaluation commands](evals/README.md).
+- **v4.1.3 (current):** the defensive injection examples in the English and Chinese introductions and in the current formal rules are category descriptions, aligned with the Agent Skill Exchange catalog wording. Pasted material that attempts to override instructions, including text that asks for a system prompt, is still treated as data: it is not followed, it cannot control this skill, and it cannot become a rule for the target AI. Injection test fixtures and frozen baselines are unchanged. This is a wording and install-version patch; behavior is unchanged.
+- **v4.1.2:** supplementary notes cannot introduce quotations or facts absent from the user’s words and material; quotation marks are reserved for verbatim text. Adds offline fidelity checks (numbers, dates, quoted content and file names counted by occurrence; material retained; new items in notes only flagged for review), a separate `fidelity` field in `run_eval.py`, and a 20-case Chinese/English trigger mini-exam. Fixes imports when the runner is loaded by file path. Trigger rules, description and `allow_implicit_invocation` are unchanged. See the [test record](docs/testing/v4.1.2-20261110/README.md) and [evaluation commands](evals/README.md).
 - **v4.1.1:** corrects how it is invoked: from "manual use only" back to automatic use when needed. Clear requests are answered directly; it is called automatically only for clearly vague requests, requests missing key information, or when you ask to optimize a prompt. `allow_implicit_invocation` is now `true`. The install section now asks you (or the installing AI) to check for same-named and similar prompt-optimization features and ask before installing. The optimization rules themselves are unchanged. See [CHANGELOG.md](CHANGELOG.md).
 - **v4.1.0:** Chinese and English editions merged into one skill with one rule set (the v4.0.4 rules) and an explicit language rule: reply in the user's language, including languages other than Chinese and English; your wording and material are never translated. `prompt-optimizer-en/` and the old bilingual runner were removed; one runner now covers both exam files. This is a structural merge only: no new real-model quality tests were run. See [CHANGELOG.md](CHANGELOG.md).
 - **v4.0.4:** four small revisions (4.0.1–4.0.4) to the Chinese edition, verified statically and offline.
